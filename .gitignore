@@ -32,3 +32,4 @@ minio.license
 
 # 系统
 .DS_Store
+.vscode

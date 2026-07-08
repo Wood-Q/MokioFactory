@@ -4,4 +4,8 @@ version = "0.1.0"
 description = "面向个人开发者的 Qwen3 小参数模型训练流水线：用工业组件跑通数据治理、SFT/LoRA、评测与闭环。"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "boto3>=1.43.42",
+    "psycopg[binary]>=3.3.2",
+    "sqlalchemy>=2.0.45",
+]
