@@ -27,6 +27,8 @@ checkpoints/
 # 环境
 .env
 .env.local
+minio.license
+**/minio.license
 
 # 系统
 .DS_Store

@@ -29,13 +29,22 @@
 
 ### 候选数据集（初拟）
 
-| 类型 | 数据集 | 用途 | 备注 |
-| --- | --- | --- | --- |
-| 预训练 | `roneneldan/TinyStories` | 从零训小模型 | 小、纯英文故事，适合 30M–150M |
-| 预训练 | `HuggingFaceFW/fineweb-edu` 小切片 | 通用预训练 | 取小切片 |
-| SFT | `yahma/alpaca-cleaned` | SFT 指令 | 经典指令集 |
-| SFT | `Open-Orca` 小切片 | SFT 指令 | 取小切片 |
-| Code | `_codealpaca / leetcode 类` | 代码 SFT | 小规模 Python |
+General:
+  openbmb/Ultra-FineWeb-L3: 10k
+  HuggingFaceFW/fineweb-2: 10k
+
+Agent:
+  minpeter/xlam-function-calling-60k-parsed: 60k 或 10k
+  lockon/ToolACE: 5k
+  prem-research/Funcdex-MT-Function-Calling: 全量
+  Agent-Ark/Toucan-1.5M: 10k
+
+Code:
+  open-r1/codeforces: 5k
+  open-r1/codeforces-cots: 10k
+
+Eval only:
+  ScaleAI/MCP-Atlas: 全量 500
 
 最终选型与切片大小在调研后确定并写入本 commit。
 
