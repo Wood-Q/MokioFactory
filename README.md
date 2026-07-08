@@ -1,6 +1,6 @@
 # MokioFactory
 
-个人开发者在游戏本 / 低成本租卡环境里，完整跑通工业界 LLM 训练流水线的练手项目。完整计划见 [plan/](plan/)。
+个人开发者在游戏本 / 低成本租卡环境里，完整跑通工业界 LLM 训练流水线的练手项目。完整计划见 [plan_concise.md](plan_concise.md)。
 
 ---
 
@@ -92,3 +92,8 @@
 
 - **理论**：本 commit 要起的 MinIO 和 PostgreSQL 都是服务进程，直接装在本机不易复现、不易切换版本。Docker 把服务连同依赖打成镜像，`docker-compose.yml` 声明式描述"起哪些服务、挂哪些卷、开哪些端口"，一行命令拉起整套环境，且与队友/CI 环境一致。
 - **实践**：写一个 `docker-compose.yml` 同时定义 MinIO + PostgreSQL，数据卷持久化；`docker compose up -d` 起服务；凭据走 `.env`，不入库不入镜像。
+
+### 模型架构（Qwen3 小参数基座）
+
+- **理论**：本项目不再维护仓库内手写 Transformer 架构，而是直接复用 Qwen3 小参数基座模型。Qwen3 dense 主线属于稳定的 decoder-only causal LM：RMSNorm / RoPE / GQA / SwiGLU/SiLU MLP / causal attention。项目重点从“造一个模型结构”调整为“围绕真实开源基座模型跑通工业数据治理、微调、评测和闭环”。
+- **实践**：第一版推荐 `Qwen/Qwen3-0.6B`，第二阶段可升级到 `Qwen/Qwen3-1.7B`。通过 Hugging Face Transformers、TRL、PEFT 或 LLaMA-Factory 加载官方架构和 tokenizer，进行 SFT / LoRA / DPO 等训练；不重新训练 tokenizer，不在仓库内手写模型层。

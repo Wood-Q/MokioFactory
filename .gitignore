@@ -1,3 +1,32 @@
 .claude
-
 .venv
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Data lake（本地缓存/下载产物，不入库；真实数据在 MinIO）
+data/
+*.jsonl
+*.jsonl.zst
+*.parquet
+*.arrow
+!configs/**/*.json
+!schemas/**/*.json
+
+# 模型权重 / checkpoint
+*.safetensors
+*.bin
+*.pt
+*.ckpt
+checkpoints/
+
+# 环境
+.env
+.env.local
+
+# 系统
+.DS_Store

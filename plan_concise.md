@@ -1,46 +1,48 @@
-# MokioFactory — minimind plus 版（工业组件复刻计划）
+# MokioFactory — Qwen3 小参数模型工业流水线学习计划
 
 ## 0. 项目定位
 
-**minimind 的 plus 版**：[minimind](https://github.com/jingyaogong/minimind) 用从零 PyTorch 实现了一个单卡可跑的完整小 LLM（预训练 → SFT → DPO）。MokioFactory 做同一件事，但**每个阶段用工业组件和项目实现，而不是手写 torch**——学的是可迁移的工业流水线，不是造轮子。
+MokioFactory 的目标是让个人开发者在游戏本或低成本租卡环境里，围绕 **Qwen3 小参数开源基座模型** 跑通一套接近工业界的 LLM 训练流水线。项目不以从零发明模型架构为目标，而是复用成熟开源模型架构和权重，把精力放在数据治理、训练配置、实验追踪、评测和迭代闭环上。
 
-与 minimind 的差异（补齐/改变的几块）：
-- **实现方式**：工业组件（LLaMA-Factory / TRL / DeepSpeed / Data-Juicer / lm-eval），不手写 torch
-- **数据治理**：minimind 用提前备好的成品数据；MokioFactory 走完整治理流程（采集→落湖→版本→清洗→审核→配比），并复刻其数据构建方法而非搬成品
-- **详细测评**：minimind 训练后无详细测评；MokioFactory 补齐三层测评 + eval 闭环
-- **架构**：沿用 Qwen2 风格（RoPE / RMSNorm / GQA / SwiGLU）
-- **延伸 agent**：SFT 之后用 LoRA 增强 agent（工具调用 / function-calling），再用 RL 强化
+核心变化：
 
-四阶段主线（单一模型逐阶段演进）：
+- **基座模型**：使用 Qwen3 小参数版，不再维护仓库内自研模型实现。
+- **实现方式**：复用工业组件，包括 LLaMA-Factory、TRL、PEFT、DeepSpeed、Data-Juicer、lm-eval。
+- **数据治理**：走完整流程：采集 → 落湖 → 版本 → 清洗 → 审核 → 配比。
+- **详细测评**：补齐 Smoke / Standard / Business 三层测评和 eval 闭环。
+- **架构**：复用 Qwen3 dense decoder-only causal LM 架构和官方 tokenizer。
+- **延伸 agent**：SFT 之后用 LoRA/QLoRA 增强工具调用 / function-calling，再用 DPO/GRPO 做偏好或行为强化。
+
+主线：
 
 ```text
-复刻数据集 -> 预训练(Qwen2风格小模型) -> SFT(指令对齐) -> LoRA(agent能力) -> RL(强化agent)
+数据治理 -> Qwen3小参数基座 -> SFT(指令对齐) -> LoRA/QLoRA(agent/领域能力) -> DPO/GRPO(偏好/强化) -> 测评闭环
 ```
 
-核心原则：复用开源组件不自研框架；配置与代码分离；数据不可变（raw→bronze→silver→gold）；全 lineage 记录；任务可重跑。
+核心原则：复用开源组件不自研模型框架；配置与代码分离；数据不可变（raw→bronze→silver→gold）；完整 lineage 记录；任务可重跑。
 
-## 1. 与 minimind 的对照
+## 1. 与从零小模型路线的对照
 
-| 维度 | minimind | MokioFactory |
+| 维度 | 从零小模型路线 | MokioFactory |
 | --- | --- | --- |
-| 实现方式 | 从零 PyTorch | 工业组件（LLaMA-Factory/TRL/DeepSpeed…） |
-| 架构 | Qwen2 风格 | 同（Qwen2 风格） |
-| 模型规模 | ~26M / ~104M，单卡可跑 | 同量级，~26M–100M+ |
-| **数据** | **提前备好的成品，无治理流程** | **完整治理：采集→落湖→版本→清洗→审核→配比** |
-| **测评** | **训练后无详细测评** | **三层测评（Smoke/Standard/Business）+ eval 闭环** |
-| 阶段 | 预训练→SFT→DPO | 预训练→SFT→LoRA→RL |
-| 目标 | 聊天小模型 | + agent 能力 |
-| 训练栈 | 手写 Trainer | LLaMA-Factory/TRL + DeepSpeed |
+| 实现方式 | 手写模型/Trainer 或轻量框架 | 工业组件（LLaMA-Factory / TRL / PEFT / DeepSpeed） |
+| 架构 | 自定义 GPT/Qwen-like 小模型 | Qwen3 官方架构 |
+| 权重 | 随机初始化 | Qwen3 官方小参数权重 |
+| tokenizer | 自己训练 | 复用 Qwen3 官方 tokenizer |
+| 数据 | 常用成品数据快速训练 | 完整治理：采集→落湖→版本→清洗→审核→配比 |
+| 测评 | 简单 loss/生成检查 | 三层测评（Smoke/Standard/Business）+ eval 闭环 |
+| 阶段 | 预训练→SFT→DPO | SFT→LoRA/QLoRA→DPO/GRPO→评测闭环 |
+| 目标 | 理解预训练原理 | 学工业界围绕基座模型做数据与训练迭代 |
 
 ## 2. 三阶段路线（基础设施演进）
 
-基础设施三阶段服务于同一条训练主线，不是平行关系。
-
 | 阶段 | 目标 | 技术栈 |
 | --- | --- | --- |
-| Phase 1 单机闭环 | 游戏本跑通四阶段 | 本地 FS + MinIO + PostgreSQL + MLflow；HF Datasets + Polars/DuckDB + Data-Juicer；LLaMA-Factory/TRL；lm-eval |
+| Phase 1 单机闭环 | 游戏本跑通 Qwen3 小模型 SFT/LoRA | 本地 FS + MinIO + PostgreSQL + MLflow；HF Datasets + Polars/DuckDB + Data-Juicer；LLaMA-Factory/TRL；lm-eval |
 | Phase 2 单机 K8s | 脚本变 Job/Workflow | K3s/Kind + Argo Workflows + MinIO + Docker |
 | Phase 3 租卡分布式 | 体验分布式、控成本 | DeepSpeed + torchrun；Kubeflow Training Operator；vLLM + lm-eval |
+
+基础设施三阶段服务于同一条训练主线，不是平行关系。
 
 ## 3. 目录架构
 
@@ -52,19 +54,19 @@ MokioFactory/
   operators/{filters,normalizers,dedup,quality}
   k8s/{argo,jobs,training}
   notebooks/{audit,analysis}
-  reports/  docs/
+  reports/  docs/  models/
 ```
 
-## 4. 数据：复刻 minimind 数据集 + 补齐治理流程
+## 4. 数据：围绕 Qwen3 微调补齐治理流程
 
-minimind 用提前备好的成品数据，**没有采集/版本/清洗/审核/配比的治理流程**。MokioFactory 补齐这块：复刻其数据**构建方法**（不搬运成品），并用工业组件走完整治理链路。本节及 §5–§9 共同构成这块短板的补齐。
+Qwen3 已经具备通用语言能力，本项目第一阶段不做从零预训练，而是围绕 SFT、agent 数据、偏好数据构建完整治理链路。
 
-| 数据集 | minimind 做法 | MokioFactory 复刻方式 |
+| 数据集 | 用途 | MokioFactory 做法 |
 | --- | --- | --- |
-| 预训练语料 | 中英混合，百科/网页/书籍清洗 | HF 开源源（Wikipedia / Common Crawl 小切片 / fineweb-edu）+ Data-Juicer 清洗 |
-| SFT 指令 | 单轮 + 多轮指令 | alpaca-cleaned / Open-Orca 小切片 + 自合成指令 |
-| 偏好(DPO/RL) | 偏好对 | 自合成 chosen/rejected，或偏好子集 |
-| Agent 数据（延伸） | minimind 无 | 工具调用 / function-calling 合成数据 |
+| SFT 指令 | 指令对齐 | alpaca-cleaned / Open-Orca 小切片 + 自合成指令 |
+| Agent 数据 | 工具调用 / function-calling | 自合成工具调用数据 + 人审抽样 |
+| 偏好数据 | DPO/GRPO | 自合成 chosen/rejected，或使用偏好子集 |
+| 通用文本 | 可选继续预训练 | fineweb-edu / wiki 小切片，仅作为后续扩展 |
 
 落湖结构（Hive 分区，raw 不可变）：
 
@@ -88,7 +90,7 @@ s3://mokio-lake/
 
 ## 7. 分片与并行
 
-每 shard 128MB–1GB，文件名稳定，配 manifest（样本数/字节/hash/来源）。第一版 JSONL.zst，第二版 Parquet。并行：单机 `datasets.map(num_proc=N)` → Ray Data → K8s Argo fan-out。
+每 shard 128MB-1GB，文件名稳定，配 manifest（样本数/字节/hash/来源）。第一版 JSONL.zst，第二版 Parquet。并行：单机 `datasets.map(num_proc=N)` → Ray Data → K8s Argo fan-out。
 
 ## 8. 人工审核
 
@@ -96,94 +98,100 @@ s3://mokio-lake/
 
 ## 9. 数据配比
 
-YAML 管 mixture（源 token 数、domain 权重、阶段配比、变更原因、与 eval 关系）。以复刻 minimind 的中英混合配比作基线，再做多组对照（如 general:code 100:0 / 70:30 / 50:50）。
+YAML 管 mixture（源 token 数、domain 权重、阶段配比、变更原因、与 eval 关系）。第一版按任务分两条线：
+
+- `sft_general_v1`：通用指令数据。
+- `agent_tool_v1`：工具调用 / function-calling 数据。
+- `preference_v1`：偏好对数据，用于 DPO/GRPO。
+
+后续再做多组对照，例如 general:agent = 100:0 / 70:30 / 50:50。
 
 ## 10. Tokenizer
 
-- 从零小模型：自训 BPE（与 minimind 一致），8k–32k 词表，100MB–1GB 语料，固化版本
-- SFT/LoRA/RL：复用预训练阶段产出的 tokenizer，不换
+- Qwen3 小参数基座：复用官方 tokenizer，不重新训练。
+- SFT/LoRA/DPO/GRPO：始终保持 tokenizer 不变。
+- 只有将来增加“从零训练小模型”实验线时，才单独训练 BPE tokenizer。
 
-特殊 token `<pad><bos><eos><unk>`。seq_len：预训练 512/1024，SFT 2048。
+seq_len：第一版 SFT/LoRA 建议 1024-2048；如果显存紧张，优先降低 `cutoff_len` 和 batch，再用 gradient accumulation 补有效 batch。
 
 ## 11. 模型架构与训练（核心）
 
 ### 架构
 
-Qwen2 风格 decoder-only Transformer（与 minimind 一致）：RoPE 位置编码 / RMSNorm / SwiGLU / GQA / 无 bias。规模 ~26M–100M+，单卡（3090 24GB）可训。
+本项目主线使用 Qwen3 小参数 dense decoder-only causal LM。架构由 Hugging Face Transformers / LLaMA-Factory 直接加载，不在仓库内维护手写模型层。
 
-参数量粗算：`params ≈ 12 × n_layer × n_embd² + vocab × n_embd²`（vocab embedding 占比不小，与 §10 tokenizer 绑定），`head_dim ≈ 64`。
+推荐基座：
 
-| 目标 | n_layer | n_embd | n_head |
-| --- | --- | --- | --- |
-| ~26M | 8 | 512 | 8 |
-| ~60M | 10 | 640 | 10 |
-| ~100M | 12 | 768 | 12 |
+| 阶段 | 模型 | 用途 |
+| --- | --- | --- |
+| MVP | `Qwen/Qwen3-0.6B` | 3090 / 低成本租卡首选，跑通数据治理、SFT、LoRA、评测闭环 |
+| 进阶 | `Qwen/Qwen3-1.7B` | 更好的效果体感，适合 LoRA/QLoRA 和小规模 DPO |
+| 扩展 | `Qwen/Qwen3-4B` | 需要更高显存或租卡，作为后续实验 |
 
-**关键：架构用工业组件定义和训练，不手写。** 用 LLaMA-Factory 的模型 config（Qwen 架构）或 HF Transformers 的 `Qwen2Config` 定义结构，由 LLaMA-Factory/TRL + DeepSpeed 跑训练。
+Qwen3 dense 主线可以理解为稳定的现代 decoder-only Transformer：RoPE / RMSNorm / GQA / SwiGLU 或 SiLU gated MLP / causal attention。项目不碰 Qwen3 MoE、Qwen3-Next、超长上下文和多模态，先把稳定小模型流水线做扎实。
 
 ### 四阶段训练
 
 | 阶段 | 目的 | 工业组件 | 数据 |
 | --- | --- | --- | --- |
-| ① 预训练 | 学语言建模，loss 下降、能生成 | LLaMA-Factory/TRL + DeepSpeed | 预训练语料（gold mixture） |
-| ② SFT | 指令对齐，会对话 | LLaMA-Factory/TRL | SFT 指令数据 |
-| ③ LoRA | 增强 agent 能力（工具调用/function-calling） | LLaMA-Factory + PEFT | agent 合成数据 |
-| ④ RL | 强化 agent（DPO/GRPO） | TRL DPO/GRPO | 偏好/agent 轨迹数据 |
+| ① SFT | 指令对齐，会按格式回答 | LLaMA-Factory / TRL | SFT 指令数据 |
+| ② LoRA/QLoRA | 低成本适配领域/agent 能力 | LLaMA-Factory + PEFT | 领域/agent 合成数据 |
+| ③ DPO/GRPO | 偏好对齐或强化 agent 行为 | TRL / LLaMA-Factory | 偏好/agent 轨迹数据 |
+| ④ 可选继续预训练 | 增强领域语料吸收 | TRL/Transformers + DeepSpeed | 通用/领域文本 mixture |
 
-分布式：先单卡 → `torchrun --nproc_per_node=1` 保入口 → 租 2–4 卡开 DeepSpeed ZeRO-2/3 → K8s 用 Job/MPIJob。
+分布式：先单卡 → `torchrun --nproc_per_node=1` 保入口 → 租 2-4 卡开 DeepSpeed ZeRO-2/3 → K8s 用 Job/MPIJob。
 
 ## 12. Checkpoint 与模型注册
 
-区分训练 ckpt（含 optimizer/scheduler/rng，续训用）vs 发布权重（safetensors）vs 模型注册。DeepSpeed ZeRO ckpt 用 `zero_to_fp32.py` 聚合 → HF 格式 → safetensors。模型版本必记：`model_version / base_model / tokenizer_version / data_mixture / cleaning_recipe / training_config / stage / git_commit / docker_image / checkpoint_path / eval_report_path`。
+区分训练 ckpt（含 optimizer/scheduler/rng，续训用）vs 发布权重（safetensors）vs 模型注册。LoRA/QLoRA 阶段优先保存 adapter；需要独立部署时再 merge 到 base model。DeepSpeed ZeRO ckpt 用 `zero_to_fp32.py` 聚合 → HF 格式 → safetensors。模型版本必记：`model_version / base_model / tokenizer_version / data_mixture / cleaning_recipe / training_config / stage / git_commit / docker_image / checkpoint_path / eval_report_path`。
 
 ## 13. 测评与闭环
 
-minimind **训练后无详细测评**——这是 MokioFactory 要补齐的第二块短板。补齐方式：三层测评 + eval 闭环，且每个训练阶段（预训练/SFT/LoRA/RL）都产出 eval_report，前后可对比。
+补齐三层测评 + eval 闭环，且每个训练阶段（SFT/LoRA/DPO/GRPO）都产出 eval_report，前后可对比。
 
-三层：Smoke eval（几十题确认没坏）→ Standard（MMLU/C-Eval/CMMLU/GSM8K/HumanEval）→ Business（自有任务/badcase/agent 任务）。从零小模型先测 perplexity/生成质量/holdout loss，不上大 benchmark；agent 阶段测工具调用成功率。闭环：`eval badcase → 标原因 → 归 domain → 调 cleaning/mixture/agent 数据 → 重训 → 重 eval`。
+三层：Smoke eval（几十题确认没坏）→ Standard（MMLU/C-Eval/CMMLU/GSM8K/HumanEval 子集）→ Business（自有任务/badcase/agent 任务）。Qwen3 小模型先测指令遵循、格式稳定性、工具调用成功率和自定义业务集。闭环：`eval badcase → 标原因 → 归 domain → 调 cleaning/mixture/agent 数据 → 重训 → 重 eval`。
 
 ## 14. 实验矩阵
 
 | 组 | 目的 | 配置 |
 | --- | --- | --- |
-| 1 | 学预训练 | 复刻 minimind 预训练语料 → 26M Qwen2 → valid loss/生成 |
-| 2 | 学 SFT | 26M base → SFT → 对话 eval |
-| 3 | 学 agent LoRA | SFT model → LoRA(工具调用数据) → agent 任务成功率 |
-| 4 | 学 RL | LoRA model → DPO/GRPO → agent 成功率提升 |
-| 5 | 学数据配比 | general:code 100:0/70:30/50:50 同配置对比 eval |
-| 6 | 学分布式 | 租 2–4 卡 → DeepSpeed ZeRO-2/3 → ckpt 聚合 |
+| 1 | 学 SFT | `Qwen/Qwen3-0.6B` → 通用 SFT 小切片 → 指令 eval |
+| 2 | 学 LoRA/QLoRA | `Qwen/Qwen3-0.6B` → agent/tool 数据 → 工具调用 eval |
+| 3 | 学偏好对齐 | LoRA 结果 → DPO/GRPO 小数据 → 偏好/格式 eval |
+| 4 | 学数据配比 | general:agent = 100:0 / 70:30 / 50:50 → 同配置对比 eval |
 
 ## 15. MVP 里程碑
 
-| # | 里程碑 | 验收 |
+| 里程碑 | 内容 | 验收 |
 | --- | --- | --- |
-| M1 | 数据湖+元数据（MinIO/PG/MLflow，下语料入 raw） | 能列版本、能读回 |
-| M2 | Schema+清洗（三类 Schema，raw→bronze→silver） | 全过 schema 校验、有前后统计 |
-| M3 | 人工审核（Label Studio/Argilla 抽样） | 看质量、能导 badcase |
-| M4 | 配比+Tokenizer（mixture.yaml、BPE、tokenized shards） | 可复现 mixture、tokenizer 有版本+报告 |
-| M5 | 预训练小模型（Qwen2 风格，LLaMA-Factory/TRL，ckpt+safetensors+MLflow） | loss 正常下降、能生成 |
-| M6 | SFT（工业组件微调 base） | base vs SFT 对比、eval 有结论 |
-| M7 | LoRA agent（PEFT + 工具调用数据） | agent 任务成功率 > base |
-| M8 | RL agent（TRL DPO/GRPO） | agent 成功率进一步提升 |
-| M9 | K8s Workflow（K3s+Argo，各阶段成 Job） | 一条 Workflow 端到端 |
-| M10 | 分布式体验（租卡 DeepSpeed） | 能解释 ZeRO ckpt 与发布权重区别 |
+| M1 | 数据湖 + 元数据（MinIO/PostgreSQL/manifest） | 能列版本、读回数据、hash 一致 |
+| M2 | Schema + 清洗（Pydantic/JSON Schema/Data-Juicer） | 每条通过校验，出清洗前后报告 |
+| M3 | 人工审核（Label Studio/Argilla） | 能导入抽样、标 pass/reject/reason、导出 badcase |
+| M4 | 配比 + Tokenize（mixture.yaml、Qwen3 tokenizer、tokenized shards） | 可复现 mixture，token 统计稳定 |
+| M5 | Qwen3 SFT（LLaMA-Factory/TRL，adapter + MLflow） | loss 正常下降，输出格式更稳 |
+| M6 | Agent LoRA（工具调用/function-calling 数据） | 工具调用成功率可测 |
+| M7 | K8s Workflow（clean/tokenize/eval Job） | Argo 一条链路跑通，产物写 MinIO |
+| M8 | 租卡分布式（DeepSpeed ZeRO-2/3） | 可恢复训练、可导出 adapter/权重、可评测 |
 
 ## 16. 优先级与取舍
 
 **优先级**
-- P1：MinIO、PostgreSQL、HF Datasets、Pydantic/JSON Schema、Data-Juicer、MLflow、LLaMA-Factory/TRL、lm-eval
-- P2：Argo Workflows、Label Studio/Argilla、lakeFS、Ray Data、DeepSpeed、PEFT
-- P3：Kubeflow Training Operator、Kueue/Volcano、OpenCompass、vLLM
+
+- P1：MinIO、PostgreSQL、HF Datasets、Pydantic/JSON Schema、Data-Juicer、MLflow、LLaMA-Factory/TRL、PEFT、lm-eval。
+- P2：Argo Workflows、Label Studio/Argilla、lakeFS、Ray Data、DeepSpeed。
+- P3：Kubeflow Training Operator、Kueue/Volcano、OpenCompass、vLLM。
 
 **取舍**
-- 架构：固定 Qwen2 风格，不纠结、不比较——用工业组件定义
-- 是否上 K8s：不急。路径 `Python CLI → Docker → Compose → K3s/Argo → Kubeflow`
-- 是否训 tokenizer：是（复刻 minimind，自训 BPE），仅用于自训小模型主线
-- agent vs 纯聊天：在 minimind 基础上延伸到 agent，LoRA + RL 是 agent 增强两步
-- RL 形式：先 DPO（简单稳定），再尝试 GRPO（agent 轨迹强化）
+
+- 架构：固定 Qwen3 小参数 dense 基座，不纠结、不魔改。
+- 是否从零训练：第一阶段不做；后续可作为独立实验线。
+- 是否训练 tokenizer：不训练，复用 Qwen3 官方 tokenizer。
+- 是否上 K8s：不急。路径 `Python CLI → Docker → Compose → K3s/Argo → Kubeflow`。
+- agent vs 纯聊天：先 SFT 通用指令，再 LoRA/QLoRA 做 agent。
+- RL 形式：先 DPO（简单稳定），再尝试 GRPO（agent 轨迹强化）。
 
 ## 17. 最终目标
 
-不比别人模型强，但能系统回答：数据来自哪 → 经哪些清洗 → 符合哪个 schema → 哪些被过滤及为何 → 用了哪个配比 → tokenizer 哪版 → 处于哪个训练阶段(stage) → ckpt 能否恢复 → 权重如何导出 → eval 如何 → 下轮怎么改。
+不比别人模型强，但能系统回答：数据来自哪 → 经哪些清洗 → 符合哪个 schema → 哪些被过滤及为何 → 用了哪个配比 → tokenizer 哪版 → base model 哪版 → 处于哪个训练阶段(stage) → ckpt/adapter 能否恢复 → 权重如何导出 → eval 如何 → 下轮怎么改。
 
-这些问题都能被系统回答时，项目就具备了工业训练流水线的骨架——一个用工业组件复刻、延伸到 agent 的 minimind plus 版。
+这些问题都能被系统回答时，项目就具备了工业训练流水线的骨架：一个围绕 Qwen3 小参数基座、可由个人开发者低成本实操的模型训练平台。

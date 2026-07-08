@@ -1,7 +1,7 @@
 [project]
 name = "mokiofactory"
 version = "0.1.0"
-description = "minimind plus 版：用工业组件复刻一个单卡可跑的完整小 LLM 流水线（预训练→SFT→LoRA→RL），并补齐数据治理与详细测评。"
+description = "面向个人开发者的 Qwen3 小参数模型训练流水线：用工业组件跑通数据治理、SFT/LoRA、评测与闭环。"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = []
