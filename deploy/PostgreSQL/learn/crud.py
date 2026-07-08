@@ -10,7 +10,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column, rela
 
 DATABASE_URL = os.getenv(
     "MOKIO_DATABASE_URL",
-    "postgresql+psycopg://mokio:mokio123456@localhost:5432/mokiofactory",
+    "postgresql+pg8000://mokio:mokio123456@localhost:5432/mokiofactory",
 )
 
 

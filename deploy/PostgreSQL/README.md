@@ -96,7 +96,7 @@ postgresql://mokio:mokio123456@localhost:5432/mokiofactory
 后续 Python 脚本可以使用环境变量：
 
 ```bash
-export MOKIO_DATABASE_URL=postgresql://mokio:mokio123456@localhost:5432/mokiofactory
+export MOKIO_DATABASE_URL=postgresql+pg8000://mokio:mokio123456@localhost:5432/mokiofactory
 ```
 
 ## 4. 用本机 psql 连接
@@ -150,7 +150,7 @@ pipeline_runs     流水线运行记录，记录 ingest/clean/tokenize/train/eva
 先安装 Python 依赖：
 
 ```bash
-pip install sqlalchemy psycopg[binary]
+pip install sqlalchemy pg8000
 ```
 
 运行示例：
@@ -171,13 +171,13 @@ Delete: 删除示例数据
 脚本默认连接：
 
 ```text
-postgresql+psycopg://mokio:mokio123456@localhost:5432/mokiofactory
+postgresql+pg8000://mokio:mokio123456@localhost:5432/mokiofactory
 ```
 
 也可以通过环境变量覆盖：
 
 ```bash
-MOKIO_DATABASE_URL=postgresql+psycopg://mokio:mokio123456@localhost:5432/mokiofactory \
+MOKIO_DATABASE_URL=postgresql+pg8000://mokio:mokio123456@localhost:5432/mokiofactory \
   python3 deploy/PostgreSQL/learn/crud.py
 ```
 
