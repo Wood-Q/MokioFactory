@@ -1,0 +1,5 @@
+<environment_context>
+  <current_date>2026-07-09</current_date>
+  <timezone>Asia/Shanghai</timezone>
+  <filesystem><workspace_roots><root>/Users/mokio/Project/MokioFactory</root></workspace_roots><permission_profile type="disabled"><file_system type="unrestricted" /></permission_profile></filesystem>
+</environment_context>
