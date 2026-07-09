@@ -1,0 +1,12 @@
+# Context from my IDE setup:
+
+## Open tabs:
+- README.md: models/README.md
+- README.md: notebooks/README.md
+- README.md: README.md
+- minimind_model.py: minimind_model.py
+- model_minimind.py: model_minimind.py
+
+## My request for Codex:
+我现在需要你把项目里的models里的minimind删掉，我想用Qwen3的模型架构来做
+然后不是从零开始，希望用Qwen3的小参数版去做
