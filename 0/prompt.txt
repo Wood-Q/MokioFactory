@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+
+## Open tabs:
+- qwen3_4b_lora_sft_smoke.yaml: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+- README.md: pipelines/train/llamafactory/README.md
+- README.md: models/README.md
+- hooks.json: .codex/hooks.json
+- config.toml: .codex/config.toml
+
+## My request for Codex:
+假设我现在llama factory已经部署好了，下一步要做什么？
