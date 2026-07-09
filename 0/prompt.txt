@@ -1,0 +1,2 @@
+我现在需要你提交一下这个commit，message就是init
+然后覆盖掉远程的首个commit
