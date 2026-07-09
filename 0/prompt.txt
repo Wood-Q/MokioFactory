@@ -1,0 +1,5 @@
+<environment_context>
+  <current_date>2026-07-09</current_date>
+  <timezone>Asia/Shanghai</timezone>
+  <filesystem><workspace_roots><root>/Users/mokio/Project/MokioFactory</root></workspace_roots><permission_profile type="managed"><file_system type="restricted"><entry access="read"><special>:root</special></entry><entry access="write"><path>/Users/mokio/Project/MokioFactory</path></entry><entry access="write"><special>:slash_tmp</special></entry><entry access="write"><special>:tmpdir</special></entry><entry access="read"><path>/Users/mokio/Project/MokioFactory/.git</path></entry><entry access="read"><path>/Users/mokio/Project/MokioFactory/.agents</path></entry><entry access="read"><path>/Users/mokio/Project/MokioFactory/.codex</path></entry></file_system></permission_profile></filesystem>
+</environment_context>
