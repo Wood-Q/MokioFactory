@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: deploy/PostgreSQL/learn/crud.py
+
+## Open tabs:
+- crud.py: deploy/PostgreSQL/learn/crud.py
+- curd.py: deploy/MinIO/learn/curd.py
+- docker-compose.yml: deploy/PostgreSQL/docker-compose.yml
+- README.md: deploy/PostgreSQL/README.md
+- README.md: deploy/README.md
+
+## My request for Codex:
+再接下来是不是就是huggingface下载数据了？脚本放在哪里
