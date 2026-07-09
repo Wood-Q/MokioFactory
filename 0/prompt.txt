@@ -1,0 +1,20 @@
+# Context from my IDE setup:
+
+## Active file: models/README.md
+
+## Open tabs:
+- README.md: models/README.md
+- training_resource_estimation.md: docs/training_resource_estimation.md
+- README.md: pipelines/ingest/README.md
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+- .gitignore: .gitignore
+
+## My request for Codex:
+现在stage1的对象存储准备，postgresql准备，数据集下载流程跑通都做完了
+接下来我感觉要做的就是调研了
+我希望你详细上网搜一下
+1. 高质量的agent和code的数据集
+2. 高质量的agent和code的测评
+
+我的目的是在Qwen3的4B模型上去做一些微调和sft，提高它的agent能力
+我感觉0.8B和1.7B会不会调起来几乎没啥成效还容易过拟合？
