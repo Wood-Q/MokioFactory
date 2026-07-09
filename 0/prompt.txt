@@ -1,0 +1,9 @@
+# Context from my IDE setup:
+
+## Open tabs:
+- README.md: README.md
+
+## My request for Codex:
+能否帮我找一下工业界的SFT和LoRA还有RL都经典是怎么做的，我也想了解一下
+三块分开，也按照你讲pretrain一样，经典流程+训练中怎么调
+生成一份文档
