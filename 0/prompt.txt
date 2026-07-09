@@ -1,0 +1,8 @@
+# Context from my IDE setup:
+
+## Open tabs:
+- README.md: README.md
+- industry_sft_lora_rl_training.md: industry_sft_lora_rl_training.md
+
+## My request for Codex:
+我要你改的命名是把commit历史里的都改一下可以吗
