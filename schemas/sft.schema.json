@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mokiofactory.local/schemas/sft.v1.json",
+  "title": "MokioFactory SFT Record",
+  "type": "object",
+  "required": [
+    "id",
+    "schema_version",
+    "source_dataset",
+    "task_family",
+    "domain",
+    "messages",
+    "tools",
+    "quality_score",
+    "meta"
+  ],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "schema_version": {"type": "string", "const": "sft.v1"},
+    "source_dataset": {"type": "string", "minLength": 1},
+    "task_family": {"type": "string", "minLength": 1},
+    "domain": {"type": "string", "minLength": 1},
+    "messages": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["role", "content"],
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": ["system", "user", "assistant", "tool"]
+          },
+          "content": {"type": "string", "minLength": 1},
+          "name": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "tools": {
+      "type": "array",
+      "items": {"type": ["object", "string"]}
+    },
+    "quality_score": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+    "meta": {"type": "object"}
+  },
+  "additionalProperties": false
+}

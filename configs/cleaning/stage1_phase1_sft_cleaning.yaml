@@ -1,0 +1,29 @@
+schema_version: sft.v1
+
+input:
+  bucket: mokio-lake
+  raw_prefixes:
+    - raw/source=hf/dataset=salesforce-xlam-function-calling-60k/date=2026-07-09/
+    - raw/source=hf/dataset=salesforce-apigen-mt-5k/date=2026-07-09/
+    - raw/source=hf/dataset=openthoughts-agent-v1-sft/date=2026-07-09/
+    - raw/source=hf/dataset=nvidia-opencodeinstruct/date=2026-07-09/
+    - raw/source=hf/dataset=glint-fable-5-traces/date=2026-07-09/
+
+output:
+  bucket: mokio-lake
+  bronze_prefix: bronze/schema=sft.v1/date=2026-07-09/
+  silver_prefix: silver/schema=sft.v1/date=2026-07-09/
+  shard_filename: part-000000.jsonl
+  manifest_filename: manifest.json
+
+filters:
+  min_messages: 2
+  min_assistant_chars: 2
+  max_chars: 120000
+  drop_empty_content: true
+  drop_duplicate_message_text: true
+
+normalization:
+  collapse_whitespace: true
+  strip_control_chars: true
+  default_quality_score: 0.8

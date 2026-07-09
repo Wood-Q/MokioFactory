@@ -4,42 +4,47 @@
 
 ---
 
-## 本次 Commit 概述：Phase 1 · 数据部分（HF 数据集调研 / 下载 / 存储）
+## 本次 Commit 概述：Stage 1 · Phase 1 · 数据部分（Schema 转换 / 基础清洗）
 
 ### 目标
 
-完成 Phase 1 数据链路的第一步：从 HuggingFace 选定并下载小而真实的数据集，按工业落湖结构存入对象存储，并生成可追溯的 manifest。本 commit **只做数据采集与落盘**，不做清洗 / Schema / 训练。
+在已经完成 Hugging Face 数据下载、MinIO raw 落湖、PostgreSQL 元数据登记之后，继续推进 Stage 1 · Phase 1 的下一步：把 raw 层不同来源、不同字段结构的数据统一转换成 `sft.v1` schema，并生成 bronze / silver 两层数据。本 commit **只做 schema 转换与基础清洗**，不进入训练。
 
 ### 范围
 
-1. **数据集调研与选型**
-   - 按预训练 / SFT / Code 三类，列出候选数据集及其规模、语言、license、用途。
-   - 第一版优先小切片，能在游戏本本地跑通即可，不追求量。
-2. **下载**
-   - 用 `huggingface_datasets` 拉取选定数据集的小切片。
-   - 下载脚本可重跑、可指定切片大小，支持断点续传 / 缓存。
-3. **存储落湖**
-   - 数据写入 raw 层，Hive 风格分区路径：
-     `s3://mokio-lake/raw/source=hf/dataset=<name>/date=<YYYY-MM-DD>/`
-   - 存储后端：MinIO（S3 兼容）；本 commit 搭起 MinIO 并写入。
-   - raw 数据不可变，后续只生成 bronze / silver / gold 新版本。
-4. **Manifest 与元数据**
-   - 每个数据集生成 `manifest.json`：来源、版本、切片、样本数、字节数、sha256。
-   - 结构化元数据（数据集版本、文件清单）登记到 PostgreSQL。
+1. **统一 SFT Schema**
+   - 新增 `schemas/sft.schema.json`。
+   - 统一字段：`id / schema_version / source_dataset / task_family / domain / messages / tools / quality_score / meta`。
+   - 第一版以 `messages` 为核心格式，兼容 tool calling、agent trace、code SFT 数据。
+2. **清洗配置**
+   - 新增 `configs/cleaning/stage1_phase1_sft_cleaning.yaml`。
+   - 声明 raw 输入前缀、bronze/silver 输出前缀、过滤阈值、文本规范化规则。
+3. **raw -> bronze**
+   - 从 MinIO raw 层读取 JSONL shard。
+   - 按来源数据集适配字段结构，转成 `sft.v1`。
+   - 生成 `bronze/schema=sft.v1/date=2026-07-09/`。
+4. **bronze -> silver**
+   - 删除空消息、缺少 assistant 回复、超长样本。
+   - 清理控制字符、折叠多余空白。
+   - 按 messages 文本做基础去重。
+   - 生成 `silver/schema=sft.v1/date=2026-07-09/`。
+5. **Manifest**
+   - bronze / silver 各自生成 `manifest.json`。
+   - 记录样本数、字节数、sha256、清洗统计、输入 raw 文件列表。
 
-### 候选数据集（当前选型）
+### 已下载数据集
 
-本阶段先聚焦 **Agent / Tool Calling / Code**，目标是围绕 `Qwen3-4B` 做小规模高质量 SFT，优先选择新近、质量较高、Hugging Face 上近期下载量较高的数据集。
+Stage 1 · Phase 1 已完成以下 Agent / Tool Calling / Code raw 数据下载，本 commit 继续把它们统一转换为 `sft.v1`。
 
 > 元数据查询时间：2026-07-09；`downloads` 取 Hugging Face API 返回值，可近似理解为近期下载热度。
 
-| 优先级 | 数据集 | 方向 | downloads | license | 最近更新 | 第一版切片建议 | 用途 |
+| 优先级 | 数据集 | 方向 | downloads | license | 最近更新 | 已下载切片 | 用途 |
 |---|---|---:|---:|---|---|---:|---|
-| P0 | `Salesforce/xlam-function-calling-60k` | Tool Calling | 16,280 | `cc-by-4.0` | 2025-01-24 | 5k-20k | 训练函数调用、参数生成、工具格式稳定性 |
-| P0 | `Salesforce/APIGen-MT-5k` | Multi-turn Agent | 1,784 | `cc-by-nc-4.0` | 2025-10-10 | 3k-5k | 强化多轮 user-agent-tool 交互和任务执行 |
-| P0 | `open-thoughts/OpenThoughts-Agent-v1-SFT` | Agent / Terminal / Code | 8,124 | `apache-2.0` | 2026-01-27 | 5k-20k | 强化终端、代码、软件工程类 Agent 轨迹 |
-| P0 | `nvidia/OpenCodeInstruct` | Code SFT | 11,281 | `cc-by-4.0` | 2025-04-28 | 5k-30k | 强化代码生成、代码解释、代码指令跟随 |
-| P1 | `Glint-Research/Fable-5-traces` | Code Project Agent | 64,153 | `agpl-3.0` | 2026-06-29 | 1k-5k | 强化项目级代码修改、轨迹式软件工程能力 |
+| P0 | `Salesforce/xlam-function-calling-60k` | Tool Calling | 16,280 | `cc-by-4.0` | 2025-01-24 | 5k | 训练函数调用、参数生成、工具格式稳定性 |
+| P0 | `Salesforce/APIGen-MT-5k` | Multi-turn Agent | 1,784 | `cc-by-nc-4.0` | 2025-10-10 | 3k | 强化多轮 user-agent-tool 交互和任务执行 |
+| P0 | `open-thoughts/OpenThoughts-Agent-v1-SFT` | Agent / Terminal / Code | 8,124 | `apache-2.0` | 2026-01-27 | 1k | 强化终端、代码、软件工程类 Agent 轨迹 |
+| P0 | `nvidia/OpenCodeInstruct` | Code SFT | 11,281 | `cc-by-4.0` | 2025-04-28 | 1k | 强化代码生成、代码解释、代码指令跟随 |
+| P1 | `Glint-Research/Fable-5-traces` | Code Project Agent | 64,153 | `agpl-3.0` | 2026-06-29 | 500 | 强化项目级代码修改、轨迹式软件工程能力 |
 
 当前判断：
 
@@ -59,24 +64,41 @@ Agent/Terminal/Code: 20%  OpenThoughts-Agent-v1-SFT + Fable-5-traces
 Code SFT:            25%  nvidia/OpenCodeInstruct
 ```
 
-第一版不追求量，先用 20k-50k 条高质量样本跑通：
+当前数据链路：
 
 ```text
-HF download -> MinIO raw -> PostgreSQL metadata -> schema normalize -> clean -> mix -> tokenize -> Qwen3-4B QLoRA SFT -> eval
+HF download -> MinIO raw -> PostgreSQL metadata -> schema normalize -> bronze -> clean/dedup -> silver
+```
+
+后续继续进入：
+
+```text
+silver -> gold mixture -> tokenize -> Qwen3-4B QLoRA SFT -> eval
 ```
 
 ### 产物
 
-- 数据集调研记录（候选 + 选型理由）
-- 下载脚本 + MinIO 部署配置
-- raw 层数据 + 每数据集 `manifest.json`
-- PostgreSQL 中的数据集版本登记
+- `schemas/sft.schema.json`
+- `configs/cleaning/stage1_phase1_sft_cleaning.yaml`
+- `pipelines/clean/normalize_sft.py`
+- `pipelines/clean/README.md`
+- bronze / silver 层 JSONL shard 与 `manifest.json`
 
 ### 验收
 
-- 能列出已下载数据集及其版本。
-- 能从 MinIO 读回完整数据，hash 与 manifest 一致。
-- 下载脚本可重跑，不重复下载、不破坏已有 raw 数据。
+- 本地能通过脚本语法检查。
+- `sft.schema.json` 和 cleaning YAML 能被正确解析。
+- 典型 raw 样本能转成 `sft.v1` record。
+- 在 MinIO 可访问环境下，能运行：
+  ```bash
+  .venv/bin/python pipelines/clean/normalize_sft.py \
+    --config configs/cleaning/stage1_phase1_sft_cleaning.yaml
+  ```
+- 能在 MinIO 中看到：
+  ```text
+  s3://mokio-lake/bronze/schema=sft.v1/date=2026-07-09/
+  s3://mokio-lake/silver/schema=sft.v1/date=2026-07-09/
+  ```
 
 ---
 
@@ -87,7 +109,7 @@ HF download -> MinIO raw -> PostgreSQL metadata -> schema normalize -> clean -> 
 ### 数据集
 
 - **理论**：数据集 = 一批结构化样本的集合。LLM 训练里三类形态：预训练 `{text}`、SFT `{messages:[{role,content}]}`、偏好 `{prompt,chosen,rejected}`。数据集是有版本的——来源、切片、清洗规则任一变化都应视为新版本，否则无法复现和对比实验。
-- **实践**：第一版选**小而真实**的切片（能在游戏本跑通即可，不追求量）；每个数据集记录来源、license、规模、用途；raw 层只存原始下载，不在原地改。
+- **实践**：第一版选**小而真实**的切片（能在游戏本跑通即可，不追求量）；每个数据集记录来源、license、规模、用途；raw 层只存原始下载，不在原地改；后续所有加工都写入 bronze / silver / gold。
 
 ### huggingface_datasets
 
@@ -102,12 +124,17 @@ HF download -> MinIO raw -> PostgreSQL metadata -> schema normalize -> clean -> 
 ### 数据湖分层与 Hive 分区
 
 - **理论**：数据不可变原则下，按"质量阶段"分层落盘：`raw`（原始下载）→ `bronze`（符合 schema）→ `silver`（清洗后）→ `gold`（按配比混合、可直接训练）。每层只读上一层产物生成新版本，不在原地改。Hive 分区把分类维度编码进路径：`raw/source=hf/dataset=tinystories/date=2026-07-08/`，这样按来源/日期筛选就是按前缀列目录，无需额外索引。
-- **实践**：本 commit 只建 raw 层；路径严格按 `source=/dataset=/date=` 分区；bronze/silver/gold 在后续 commit 各自加，不回改 raw。
+- **实践**：前序 commit 已建 raw 层；本 commit 新增 bronze / silver 层。路径严格按 `source=/dataset=/date=` 或 `schema=/date=` 分区；后续 gold 会按 mixture 配比生成，不回改 raw。
 
 ### manifest 与数据可追溯
 
 - **理论**：manifest = 每个数据集版本的索引文件，记录来源、schema 版本、切片、样本数、字节数、每文件 sha256。它是"数据指纹"——校验读回数据没坏、判断是否需重下、追溯某条样本来源。lineage（血缘）= 从数据到模型的可追溯链路，工业训练的命门。
-- **实践**：本 commit 每次写 raw 同步生成 `manifest.json`；读回时算 sha256 与 manifest 比对；manifest 内容登记到 PostgreSQL。
+- **实践**：raw / bronze / silver 每层都同步生成 `manifest.json`；读回时算 sha256 与 manifest 比对；manifest 记录输入文件列表与清洗统计。
+
+### Schema 转换与清洗
+
+- **理论**：不同来源数据集字段结构不同，不能直接混在一起训练。工业数据流水线通常先定义目标 schema，再把各来源数据适配到统一格式，之后再做过滤、去重、质量打分和配比。
+- **实践**：本 commit 定义 `sft.v1`，把 tool calling / multi-turn agent / code SFT / coding trace 数据统一成 `messages` 格式。基础清洗包括空内容过滤、assistant 回复检查、超长过滤、文本规范化和按 messages 文本去重。
 
 ### PostgreSQL（元数据存储）
 
