@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: configs/README.md
+
+## Open tabs:
+- README.md: configs/README.md
+- .gitkeep: configs/cleaning/.gitkeep
+- README.md: models/README.md
+- README.md: notebooks/README.md
+- README.md: README.md
+
+## My request for Codex:
+你帮我审查一下现在的文件结构，是不是已经足够合理
