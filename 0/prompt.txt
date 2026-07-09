@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: README.md
+
+## Open tabs:
+- README.md: README.md
+- README.md: configs/README.md
+- .gitkeep: configs/cleaning/.gitkeep
+- README.md: models/README.md
+- README.md: notebooks/README.md
+
+## My request for Codex:
+按你说的来，然后我现在需要你教一下我MinIO怎么用，我应该怎么下载下来然后配置，然后把数据落到里面
