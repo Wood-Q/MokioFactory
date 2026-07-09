@@ -1,0 +1,16 @@
+# Context from my IDE setup:
+
+## Active file: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+
+## Open tabs:
+- qwen3_4b_lora_sft_smoke.yaml: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+- README.md: pipelines/train/llamafactory/README.md
+- README.md: models/README.md
+- hooks.json: .codex/hooks.json
+- config.toml: .codex/config.toml
+## My request for Codex:
+不对不对，数据搜集完应该是schema转换和清洗
+
+我已经git reset了，你把stage1.phase1继续做，schema转换和数据清洗
+
+记得更新readme
