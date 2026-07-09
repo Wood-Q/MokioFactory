@@ -1,0 +1,10 @@
+# Context from my IDE setup:
+
+## Active file: deploy/MinIO/docker-compose.yml
+
+## Open tabs:
+- docker-compose.yml: deploy/MinIO/docker-compose.yml
+## My request for Codex:
+你现在为我写好一个docker-compose.yml单节点，然后brew install minio/aistor/mc，用mac下载的客户端链接尝试一下
+
+总之帮我跑通整个流程即可
