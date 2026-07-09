@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: .gitignore
+
+## Open tabs:
+- .gitignore: .gitignore
+- crud.py: deploy/PostgreSQL/learn/crud.py
+- curd.py: deploy/MinIO/learn/curd.py
+- pyproject.toml: pyproject.toml
+- settings.json: .vscode/settings.json
+
+## My request for Codex:
+continue
