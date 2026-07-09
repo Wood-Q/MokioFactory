@@ -1,0 +1,15 @@
+# Context from my IDE setup:
+
+## Active file: pipelines/train/llamafactory/README.md
+
+## Open tabs:
+- README.md: pipelines/train/llamafactory/README.md
+- README.md: README.md
+- industry_sft_lora_rl_training.md: industry_sft_lora_rl_training.md
+
+## My request for Codex:
+可以用docker部署llama-factory的Install from Docker Image
+从 Docker 镜像进行安装
+docker run -it --rm --gpus=all --ipc=host hiyouga/llamafactory:latest
+
+你改一下，不要clone仓库这种方式部署
