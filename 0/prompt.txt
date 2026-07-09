@@ -1,0 +1,9 @@
+# Context from my IDE setup:
+
+## Active file: deploy/MinIO/docker-compose.yml
+
+## Open tabs:
+- docker-compose.yml: deploy/MinIO/docker-compose.yml
+
+## My request for Codex:
+你为我修改一下docker-compose.yml，改为单节点形式，可以让我运行即可
