@@ -1,0 +1,15 @@
+# Context from my IDE setup:
+
+## Active file: pyproject.toml
+
+## Active selection of the file:
+qlalchemy>
+## Open tabs:
+- pyproject.toml: pyproject.toml
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+- .gitignore: .gitignore
+- crud.py: deploy/PostgreSQL/learn/crud.py
+- curd.py: deploy/MinIO/learn/curd.py
+
+## My request for Codex:
+有个问题，这个download不是用sqlalchemy，记得改一下
