@@ -1,0 +1,20 @@
+# Context from my IDE setup:
+
+## Active file: README.md
+
+## Open tabs:
+- README.md: README.md
+- README.md: configs/README.md
+- .gitkeep: configs/cleaning/.gitkeep
+- README.md: models/README.md
+- README.md: notebooks/README.md
+## My request for Codex:
+按你说的来，然后我现在需要你教一下我MinIO怎么用，我应该怎么下载下来然后配置，然后把数据落到里面
+我不需要你帮我做，我要自己来实操来做，
+我看了一下容器部署官网是要我
+docker pull quay.io/minio/aistor/minio
+然后下载许可证密钥，并按照文档说明完成设置。
+
+但是我不清楚是docker部署好，还是我用homebrew下载到mac本地好
+
+你为我指示一下怎么做
