@@ -1,0 +1,15 @@
+# Context from my IDE setup:
+
+## Active file: pipelines/ingest/download_hf_dataset.py
+
+## Active selection of the file:
+from datasets import load_dataset
+## Open tabs:
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+- .gitignore: .gitignore
+- curd.py: deploy/MinIO/learn/curd.py
+- README.md: pipelines/ingest/README.md
+- README.md: deploy/MinIO/README.md
+
+## My request for Codex:
+我需要你再ingest的readme里加上from datasets import load_dataset这部分的科普讲解
