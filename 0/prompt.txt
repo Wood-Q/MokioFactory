@@ -1,0 +1,18 @@
+# Context from my IDE setup:
+
+## Active file: deploy/README.md
+
+## Active selection of the file:
+- PostgreSQL — 结构化元数据存储。
+- MLflow — 实验追踪与模型版本记录。
+- K8s / Argo — 后续把流水线脚本变成 Job / Workflow。
+
+## Open tabs:
+- README.md: deploy/README.md
+- README.md: deploy/MinIO/README.md
+- curd.py: deploy/MinIO/learn/curd.py
+- put_object.py: deploy/MinIO/learn/put_object.py
+- .gitignore: .gitignore
+
+## My request for Codex:
+那我接下来是先部署好PostgreSQL，然后去开始huggingface下载数据是吗？
