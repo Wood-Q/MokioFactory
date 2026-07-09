@@ -1,0 +1,12 @@
+# Context from my IDE setup:
+
+## Active file: schemas/sft.schema.json
+
+## Open tabs:
+- sft.schema.json: schemas/sft.schema.json
+- README.md: pipelines/train/llamafactory/README.md
+- qwen3_4b_lora_sft_smoke.yaml: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+
+## My request for Codex:
+后续要做清洗的话，参考工业级的做法，是不是要起k8s，用小集群进行清洗？
+我能不能用kind这样的小集群做实践尝试？
