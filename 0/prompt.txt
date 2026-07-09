@@ -1,0 +1,16 @@
+# Context from my IDE setup:
+
+## Active file: pipelines/ingest/README.md
+
+## Active selection of the file:
+python pipelines/ingest/download_hf_dataset.py \
+  --config configs/datasets/xlam_function_calling_60k_sample.yaml
+## Open tabs:
+- README.md: pipelines/ingest/README.md
+- xlam_function_calling_60k_sample.yaml: configs/datasets/xlam_function_calling_60k_sample.yaml
+- README.md: README.md
+- pyproject.toml: pyproject.toml
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+
+## My request for Codex:
+哦对，加上提示配置hf-mirror
