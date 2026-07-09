@@ -1,0 +1,31 @@
+# AGENTS.md instructions
+
+<INSTRUCTIONS>
+<!-- CODEGRAPH_START -->
+## CodeGraph
+
+In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
+
+- **MCP tool** (when available): `codegraph_explore` answers most code questions in one call — the relevant symbols' verbatim source plus the call paths between them, including dynamic-dispatch hops grep can't follow. Name a file or symbol in the query to read its current line-numbered source. If it's listed but deferred, load it by name via tool search.
+- **Shell** (always works): `codegraph explore "<symbol names or question>"` prints the same output.
+
+If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
+<!-- CODEGRAPH_END -->
+
+- 以瞎猜接口为耻，以认真查询为荣。
+- 以模糊执行为耻，以寻求确认为荣。
+- 以臆想业务为耻，以人类确认为荣。
+- 以创造接口为耻，以复用现有为荣。
+-以跳过验证为耻，以主动测试为荣。
+- 以破坏架构为耻，以遵循规范为荣。
+- 以假装理解为耻，以诚实无知为荣。
+- 以盲目修改为耻，以谨慎重构为荣。
+</INSTRUCTIONS>
+
+<environment_context>
+  <cwd>/Users/mokio/Project/MokioFactory</cwd>
+  <shell>zsh</shell>
+  <current_date>2026-07-09</current_date>
+  <timezone>Asia/Shanghai</timezone>
+  <filesystem><workspace_roots><root>/Users/mokio/Project/MokioFactory</root></workspace_roots><permission_profile type="disabled"><file_system type="unrestricted" /></permission_profile></filesystem>
+</environment_context>
