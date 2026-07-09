@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: pyproject.toml
+
+## Open tabs:
+- pyproject.toml: pyproject.toml
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+- .gitignore: .gitignore
+- crud.py: deploy/PostgreSQL/learn/crud.py
+- curd.py: deploy/MinIO/learn/curd.py
+
+## My request for Codex:
+我的意思是数据库操控全部改为sqlalchemy
