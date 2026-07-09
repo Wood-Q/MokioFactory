@@ -1,0 +1,37 @@
+# Context from my IDE setup:
+
+## Active file: pipelines/ingest/download_hf_dataset.py
+
+## Open tabs:
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+- README.md: pipelines/ingest/README.md
+- xlam_function_calling_60k_sample.yaml: configs/datasets/xlam_function_calling_60k_sample.yaml
+- README.md: README.md
+- pyproject.toml: pyproject.toml
+
+## My request for Codex:
+(MokioFactory) ➜  MokioFactory git:(main) ✗ python pipelines/ingest/download_hf_dataset.py \
+  --config configs/datasets/xlam_function_calling_60k_sample.yaml
+Traceback (most recent call last):
+  File "/Users/mokio/Project/MokioFactory/pipelines/ingest/download_hf_dataset.py", line 374, in <module>
+    main()
+    ~~~~^^
+  File "/Users/mokio/Project/MokioFactory/pipelines/ingest/download_hf_dataset.py", line 370, in main
+    ingest(args.config)
+    ~~~~~~^^^^^^^^^^^^^
+  File "/Users/mokio/Project/MokioFactory/pipelines/ingest/download_hf_dataset.py", line 330, in ingest
+    ensure_bucket(client, config.raw_bucket)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mokio/Project/MokioFactory/pipelines/ingest/download_hf_dataset.py", line 175, in ensure_bucket
+    existing = {item["Name"] for item in client.list_buckets()["Buckets"]}
+                                         ~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/mokio/Project/MokioFactory/.venv/lib/python3.14/site-packages/botocore/client.py", line 606, in _api_call
+    return self._make_api_call(operation_name, kwargs)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mokio/Project/MokioFactory/.venv/lib/python3.14/site-packages/botocore/context.py", line 123, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/mokio/Project/MokioFactory/.venv/lib/python3.14/site-packages/botocore/client.py", line 1094, in _make_api_call
+    raise error_class(parsed_response, operation_name)
+botocore.exceptions.ClientError: An error occurred (502) when calling the ListBuckets operation (reached max retries: 4): Bad Gateway
+
+啥情况？修复一下
