@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: deploy/MinIO/docker-compose.yml
+
+## Open tabs:
+- docker-compose.yml: deploy/MinIO/docker-compose.yml
+- docker-compose-minIO.yml: deploy/MinIO/docker-compose-minIO.yml
+- docker-compose-minIO.yml: deploy/docker-compose-minIO.yml
+- nginx.conf: deploy/nginx.conf
+- minio.license: deploy/minio.license
+
+## My request for Codex:
+帮我杀掉现在compose起的在运行的容器
