@@ -1,0 +1,29 @@
+# Context from my IDE setup:
+
+## Active file: deploy/MinIO/learn/put_object.py
+
+## Active selection of the file:
+import boto3
+
+s3 = boto3.client(
+    "s3",
+    endpoint_url="http://localhost:9000",
+    aws_access_key_id="mokioadmin",
+    aws_secret_access_key="mokioadmin123456",
+)
+
+s3.put_object(
+    Bucket="mokio-lake",
+    Key="raw/source=hf/dataset=test/date=2026-07-08/hello.jsonl",
+    Body=b'{"text": "hello"}\n',
+    ContentType="application/jsonl",
+)
+## Open tabs:
+- put_object.py: deploy/MinIO/learn/put_object.py
+- README.md: deploy/MinIO/README.md
+- .gitignore: .gitignore
+- README.md: README.md
+- docker-compose.yml: deploy/MinIO/docker-compose.yml
+
+## My request for Codex:
+能否在MinIO里的readme里加上python的增删改查代码，现在只有增
