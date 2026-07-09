@@ -1,0 +1,11 @@
+# Context from my IDE setup:
+
+## Active file: schemas/sft.schema.json
+
+## Open tabs:
+- sft.schema.json: schemas/sft.schema.json
+- README.md: pipelines/train/llamafactory/README.md
+- qwen3_4b_lora_sft_smoke.yaml: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+
+## My request for Codex:
+主要后续是要接入llama factory的，是不是要按llama factory的schema要求来？还是后续再做对应的转换即可？
