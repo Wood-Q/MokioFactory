@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: pipelines/clean/normalize_sft.py
+
+## Open tabs:
+- normalize_sft.py: pipelines/clean/normalize_sft.py
+- stage1_phase1_sft_cleaning.yaml: configs/cleaning/stage1_phase1_sft_cleaning.yaml
+- sft.schema.json: schemas/sft.schema.json
+- README.md: pipelines/train/llamafactory/README.md
+- qwen3_4b_lora_sft_smoke.yaml: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+
+## My request for Codex:
+噢，所以你的意思是先得把脚本跑起来，保证能够正常跑，然后再起kind，起kind的用处是利用容器集群的好处，并行多个pod跑清洗，是吗？
