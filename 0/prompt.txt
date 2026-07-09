@@ -1,0 +1,15 @@
+# Context from my IDE setup:
+
+## Active file: deploy/MinIO/README.md
+
+## Active selection of the file:
+mc ls
+## Open tabs:
+- README.md: deploy/MinIO/README.md
+- README.md: deploy/PostgreSQL/README.md
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+- README.md: pipelines/ingest/README.md
+- xlam_function_calling_60k_sample.yaml: configs/datasets/xlam_function_calling_60k_sample.yaml
+
+## My request for Codex:
+我为什么没有mc查询到？
