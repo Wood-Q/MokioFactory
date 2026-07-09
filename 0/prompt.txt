@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Open tabs:
+- README.md: pipelines/ingest/README.md
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+- .gitignore: .gitignore
+- curd.py: deploy/MinIO/learn/curd.py
+- README.md: deploy/MinIO/README.md
+
+## My request for Codex:
+我有一个点想了解，就是
+1. 怎么估算一个几b的模型要多少显存，预训练，sft，rl分别需要多少，倍率多少？
+2. 怎么知道多大的模型要多少数据条数才能训的有质量，有没有一个适用的判断标准
