@@ -1,0 +1,32 @@
+# Context from my IDE setup:
+
+## Active file: README.md
+
+## Open tabs:
+- README.md: README.md
+- README.md: configs/README.md
+- .gitkeep: configs/cleaning/.gitkeep
+- README.md: models/README.md
+- README.md: notebooks/README.md
+
+## My request for Codex:
+1. **数据集调研与选型**
+   - 按预训练 / SFT / Code 三类，列出候选数据集及其规模、语言、license、用途。
+   - 第一版优先小切片，能在游戏本本地跑通即可，不追求量。
+2. **下载**
+   - 用 `huggingface_datasets` 拉取选定数据集的小切片。
+   - 下载脚本可重跑、可指定切片大小，支持断点续传 / 缓存。
+3. **存储落湖**
+   - 数据写入 raw 层，Hive 风格分区路径：
+     `s3://mokio-lake/raw/source=hf/dataset=<name>/date=<YYYY-MM-DD>/`
+   - 存储后端：MinIO（S3 兼容）；本 commit 搭起 MinIO 并写入。
+   - raw 数据不可变，后续只生成 bronze / silver / gold 新版本。
+4. **Manifest 与元数据**
+   - 每个数据集生成 `manifest.json`：来源、版本、切片、样本数、字节数、sha256。
+   - 结构化元数据（数据集版本、文件清单）登记到 PostgreSQL。
+
+这是我接下来要做的事
+
+你能否调研一下，我主要想搜集的数据
+1. 一些新的通用知识内容，发布时间早一些，最好是25年之后的，然后质量高的，huggingface上下载量高很受欢迎的
+2. 高质量的Agent内容和code内容，我最终这些训练的目的是想让qwen3有一个比较强的agent能力
