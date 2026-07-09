@@ -1,0 +1,18 @@
+dataset_id: open-thoughts/OpenThoughts-Agent-v1-SFT
+config_name: default
+source: hf
+task_family: agent_terminal_code
+license: apache-2.0
+split: train
+revision: main
+streaming: true
+shuffle: false
+sample_size: 1000
+seed: 42
+shuffle_buffer_size: 1000
+
+raw_bucket: mokio-lake
+raw_prefix: raw/source=hf/dataset=openthoughts-agent-v1-sft/date=2026-07-09/
+shard_filename: part-000000.jsonl
+manifest_filename: manifest.json
+schema_target: agent_sft.v1

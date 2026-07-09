@@ -89,12 +89,15 @@ pipeline_runs = Table(
 @dataclass(frozen=True)
 class DatasetConfig:
     dataset_id: str
+    config_name: str | None
+    data_files: str | list[str] | None
     source: str
     task_family: str
     license: str
     split: str
     revision: str
     streaming: bool
+    shuffle: bool
     sample_size: int
     seed: int
     shuffle_buffer_size: int
@@ -148,12 +151,15 @@ def load_config(path: Path) -> DatasetConfig:
 
     return DatasetConfig(
         dataset_id=raw["dataset_id"],
+        config_name=raw.get("config_name"),
+        data_files=raw.get("data_files"),
         source=raw["source"],
         task_family=raw["task_family"],
         license=raw["license"],
         split=raw["split"],
         revision=raw.get("revision", "main"),
         streaming=bool(raw.get("streaming", True)),
+        shuffle=bool(raw.get("shuffle", True)),
         sample_size=int(raw.get("sample_size", 1000)),
         seed=int(raw.get("seed", 42)),
         shuffle_buffer_size=int(raw.get("shuffle_buffer_size", 10000)),
@@ -203,20 +209,32 @@ def preflight_database(database_url: str) -> None:
 
 
 def write_jsonl_shard(config: DatasetConfig, output_path: Path) -> tuple[int, int, str]:
+    load_kwargs: dict[str, Any] = {
+        "split": config.split,
+        "revision": config.revision,
+        "streaming": config.streaming,
+    }
+    hf_token = os.getenv("HF_TOKEN")
+    if hf_token:
+        load_kwargs["token"] = hf_token
+        load_kwargs["storage_options"] = {"token": hf_token}
+    if config.data_files:
+        load_kwargs["data_files"] = config.data_files
+
     dataset = load_dataset(
         config.dataset_id,
-        split=config.split,
-        revision=config.revision,
-        streaming=config.streaming,
+        config.config_name,
+        **load_kwargs,
     )
 
-    if config.streaming:
-        dataset = dataset.shuffle(
-            seed=config.seed,
-            buffer_size=config.shuffle_buffer_size,
-        )
-    else:
-        dataset = dataset.shuffle(seed=config.seed)
+    if config.shuffle:
+        if config.streaming:
+            dataset = dataset.shuffle(
+                seed=config.seed,
+                buffer_size=config.shuffle_buffer_size,
+            )
+        else:
+            dataset = dataset.shuffle(seed=config.seed)
 
     hasher = hashlib.sha256()
     record_count = 0
@@ -246,12 +264,15 @@ def build_manifest(
     return {
         "dataset_version_id": dataset_version_id,
         "dataset_id": config.dataset_id,
+        "config_name": config.config_name,
+        "data_files": config.data_files,
         "source": config.source,
         "task_family": config.task_family,
         "license": config.license,
         "split": config.split,
         "revision": config.revision,
         "streaming": config.streaming,
+        "shuffle": config.shuffle,
         "sample_size": config.sample_size,
         "actual_record_count": record_count,
         "schema_target": config.schema_target,
@@ -300,9 +321,12 @@ def insert_metadata(
                 status="succeeded",
                 config_json={
                     "dataset_id": config.dataset_id,
+                    "config_name": config.config_name,
+                    "data_files": config.data_files,
                     "split": config.split,
                     "revision": config.revision,
                     "sample_size": config.sample_size,
+                    "shuffle": config.shuffle,
                     "raw_path": config.raw_path,
                 },
             )

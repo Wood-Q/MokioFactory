@@ -1,0 +1,18 @@
+dataset_id: Glint-Research/Fable-5-traces
+config_name: pi_agent
+source: hf
+task_family: code_project_agent
+license: agpl-3.0
+split: train
+revision: main
+streaming: true
+shuffle: false
+sample_size: 500
+seed: 42
+shuffle_buffer_size: 1000
+
+raw_bucket: mokio-lake
+raw_prefix: raw/source=hf/dataset=glint-fable-5-traces/date=2026-07-09/
+shard_filename: part-000000.jsonl
+manifest_filename: manifest.json
+schema_target: agent_sft.v1

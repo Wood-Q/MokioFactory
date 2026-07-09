@@ -27,26 +27,43 @@
    - 每个数据集生成 `manifest.json`：来源、版本、切片、样本数、字节数、sha256。
    - 结构化元数据（数据集版本、文件清单）登记到 PostgreSQL。
 
-### 候选数据集（初拟）
+### 候选数据集（当前选型）
 
-General:
-  openbmb/Ultra-FineWeb-L3: 10k
-  HuggingFaceFW/fineweb-2: 10k
+本阶段先聚焦 **Agent / Tool Calling / Code**，目标是围绕 `Qwen3-4B` 做小规模高质量 SFT，优先选择新近、质量较高、Hugging Face 上近期下载量较高的数据集。
 
-Agent:
-  minpeter/xlam-function-calling-60k-parsed: 60k 或 10k
-  lockon/ToolACE: 5k
-  prem-research/Funcdex-MT-Function-Calling: 全量
-  Agent-Ark/Toucan-1.5M: 10k
+> 元数据查询时间：2026-07-09；`downloads` 取 Hugging Face API 返回值，可近似理解为近期下载热度。
 
-Code:
-  open-r1/codeforces: 5k
-  open-r1/codeforces-cots: 10k
+| 优先级 | 数据集 | 方向 | downloads | license | 最近更新 | 第一版切片建议 | 用途 |
+|---|---|---:|---:|---|---|---:|---|
+| P0 | `Salesforce/xlam-function-calling-60k` | Tool Calling | 16,280 | `cc-by-4.0` | 2025-01-24 | 5k-20k | 训练函数调用、参数生成、工具格式稳定性 |
+| P0 | `Salesforce/APIGen-MT-5k` | Multi-turn Agent | 1,784 | `cc-by-nc-4.0` | 2025-10-10 | 3k-5k | 强化多轮 user-agent-tool 交互和任务执行 |
+| P0 | `open-thoughts/OpenThoughts-Agent-v1-SFT` | Agent / Terminal / Code | 8,124 | `apache-2.0` | 2026-01-27 | 5k-20k | 强化终端、代码、软件工程类 Agent 轨迹 |
+| P0 | `nvidia/OpenCodeInstruct` | Code SFT | 11,281 | `cc-by-4.0` | 2025-04-28 | 5k-30k | 强化代码生成、代码解释、代码指令跟随 |
+| P1 | `Glint-Research/Fable-5-traces` | Code Project Agent | 64,153 | `agpl-3.0` | 2026-06-29 | 1k-5k | 强化项目级代码修改、轨迹式软件工程能力 |
 
-Eval only:
-  ScaleAI/MCP-Atlas: 全量 500
+当前判断：
 
-最终选型与切片大小在调研后确定并写入本 commit。
+- 这组数据集比原来的 General / Codeforces 方向更贴合项目目标：不是泛泛训练代码题，而是让模型更会 **调用工具、执行任务、读写代码项目**。
+- `Salesforce/xlam-function-calling-60k` 和 `APIGen-MT-5k` 适合作为 Tool/Agent 基础盘，前者偏单轮函数调用，后者偏多轮任务轨迹。
+- `OpenThoughts-Agent-v1-SFT` 和 `Fable-5-traces` 更接近真实 Agent / coding agent 行为，适合放在第二批或混合训练里。
+- `OpenCodeInstruct` 数据量大，第一版不要全量下载，先抽 5k-30k 做 schema、清洗、tokenize、SFT 和 eval 闭环。
+- `Salesforce/xlam-function-calling-60k` 是 gated dataset，需要先在 Hugging Face 页面申请访问并配置 `HF_TOKEN`，否则匿名下载会返回 401。
+- 注意 license：`APIGen-MT-5k` 是 `cc-by-nc-4.0`，`Fable-5-traces` 是 `agpl-3.0`，适合学习研究；如果未来做商业用途，需要重新审查 license。
+
+第一版建议配比：
+
+```text
+Tool Calling:        35%  Salesforce/xlam-function-calling-60k
+Multi-turn Agent:    20%  Salesforce/APIGen-MT-5k
+Agent/Terminal/Code: 20%  OpenThoughts-Agent-v1-SFT + Fable-5-traces
+Code SFT:            25%  nvidia/OpenCodeInstruct
+```
+
+第一版不追求量，先用 20k-50k 条高质量样本跑通：
+
+```text
+HF download -> MinIO raw -> PostgreSQL metadata -> schema normalize -> clean -> mix -> tokenize -> Qwen3-4B QLoRA SFT -> eval
+```
 
 ### 产物
 

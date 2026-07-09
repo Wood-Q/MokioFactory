@@ -1,0 +1,17 @@
+dataset_id: Salesforce/xlam-function-calling-60k
+source: hf
+task_family: agent_tool_calling
+license: cc-by-4.0
+split: train
+revision: main
+streaming: true
+shuffle: false
+sample_size: 5000
+seed: 42
+shuffle_buffer_size: 1000
+
+raw_bucket: mokio-lake
+raw_prefix: raw/source=hf/dataset=salesforce-xlam-function-calling-60k/date=2026-07-09/
+shard_filename: part-000000.jsonl
+manifest_filename: manifest.json
+schema_target: agent_sft.v1

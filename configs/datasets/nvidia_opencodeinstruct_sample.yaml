@@ -1,0 +1,19 @@
+dataset_id: nvidia/OpenCodeInstruct
+config_name: train
+data_files: data/train-00000-of-00050.parquet
+source: hf
+task_family: code_sft
+license: cc-by-4.0
+split: train
+revision: main
+streaming: true
+shuffle: false
+sample_size: 1000
+seed: 42
+shuffle_buffer_size: 1000
+
+raw_bucket: mokio-lake
+raw_prefix: raw/source=hf/dataset=nvidia-opencodeinstruct/date=2026-07-09/
+shard_filename: part-000000.jsonl
+manifest_filename: manifest.json
+schema_target: code_sft.v1

@@ -1,0 +1,17 @@
+dataset_id: Salesforce/APIGen-MT-5k
+config_name: dataset
+source: hf
+task_family: agent_multi_turn
+license: cc-by-nc-4.0
+split: train
+revision: main
+streaming: true
+sample_size: 3000
+seed: 42
+shuffle_buffer_size: 5000
+
+raw_bucket: mokio-lake
+raw_prefix: raw/source=hf/dataset=salesforce-apigen-mt-5k/date=2026-07-09/
+shard_filename: part-000000.jsonl
+manifest_filename: manifest.json
+schema_target: agent_sft.v1
