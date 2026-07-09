@@ -1,0 +1,10 @@
+# Context from my IDE setup:
+
+## Active file: README.md
+
+## Open tabs:
+- README.md: README.md
+
+## My request for Codex:
+后续想参考工业级训练，那我是用llamafactory好还是deepspeed好？还是两个都可以试试？
+为我讲解一下
