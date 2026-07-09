@@ -1,0 +1,17 @@
+# Context from my IDE setup:
+
+## Active file: plan.md
+
+## Open tabs:
+- plan.md: plan.md
+
+# Files mentioned by the user:
+
+## plan.md: /Users/mokio/Project/MokioFactory/plan.md
+
+## My request for Codex:
+我希望你大概读一下我的规划
+我的核心做这个项目的目的，是能让个人开发者（一台游戏本，游戏本有一张3090这样的显卡，可以用租卡平台，但是开销不要特别大），能够学习工业界落地的整个训练模型的流水线，然后实操真实的训练出一个小模型
+
+你能否为我深入优化一下这个计划
+要求每个部分都告诉我工业界常用的方案，常用的一些开源项目，然后具体实操的方法这样
