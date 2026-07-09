@@ -1,0 +1,15 @@
+我想明确一下我的目的：
+是让一个个人开发和也能跑通工业界的llm训练流水线，包括预训练，sft，lora微调和rl，大概就是一个更正规专业化的https://github.com/jingyaogong/minimind项目，不是用torch底层实现，而是用工业项目和组件实现
+
+然后实际要产出的是
+参考https://github.com/jingyaogong/minimind这个项目，这个项目都是从零手动torch实现的，而我要做的，是采用工业级的方法和组件去实现
+
+最终的目的是
+1. 自己搜集数据集，复刻minimind自己做的数据集
+2. 预训练出来之后，用工业组件和项目sft进行调整
+3. 预训练出来minimind之后，用现成组件做lora微调，提高它的agent能力
+4. 用rl强化agent能力
+
+大概是这个意思，我现在想明白了，定义就是minimind项目的plus版
+
+你为我修改一下对应的plan
