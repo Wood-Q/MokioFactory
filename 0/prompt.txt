@@ -1,0 +1,15 @@
+# Context from my IDE setup:
+
+## Active file: README.md
+
+## Open tabs:
+- README.md: README.md
+- qwen3_4b_lora_sft_smoke.yaml: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+- dataset_info.json: configs/training/llamafactory/dataset_info.json
+- stage1_phase2_smoke.jsonl: data/llamafactory/stage1_phase2_smoke.jsonl
+- README.md: data/llamafactory/README.md
+
+## My request for Codex:
+你引入llama-factory之后忘了改readme了，记得改为训练部分
+
+按照现在的整个格式做修改
