@@ -1,0 +1,19 @@
+# Context from my IDE setup:
+
+## Active file: deploy/MinIO/docker-compose.yml
+
+## Open tabs:
+- docker-compose.yml: deploy/MinIO/docker-compose.yml
+- docker-compose-minIO.yml: deploy/MinIO/docker-compose-minIO.yml
+- docker-compose-minIO.yml: deploy/docker-compose-minIO.yml
+- nginx.conf: deploy/nginx.conf
+- minio.license: deploy/minio.license
+
+## My request for Codex:
+(MokioFactory) ➜  MokioFactory git:(main) ✗ mc alias set mokio http://localhost:9000 mokio mokio                
+Configuration written to `/Users/mokio/.mc/config.json`. Please update your access credentials.
+Created `/Users/mokio/.mc/share` successfully.
+Initialized share uploads `/Users/mokio/.mc/share/uploads.json` file.
+Initialized share downloads `/Users/mokio/.mc/share/downloads.json` file.
+Invalid secret key `mokio`. Invalid arguments provided, please refer `mc <command> -h` for relevant documentation.
+这是啥意思？
