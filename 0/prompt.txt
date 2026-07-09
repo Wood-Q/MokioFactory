@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: pipelines/train/llamafactory/README.md
+
+## Active selection of the file:
+docker pull hiyouga/llamafactory:latest
+## Open tabs:
+- README.md: pipelines/train/llamafactory/README.md
+- README.md: README.md
+- industry_sft_lora_rl_training.md: industry_sft_lora_rl_training.md
+
+## My request for Codex:
+mac不能用llama-factory，能用什么框架训练？调研一下
