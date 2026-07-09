@@ -1,0 +1,15 @@
+# Context from my IDE setup:
+
+## Active file: pipelines/train/llamafactory/README.md
+
+## Active selection of the file:
+docker pull hiyouga/llamafactory:latest
+## Open tabs:
+- README.md: pipelines/train/llamafactory/README.md
+- .gitignore: .gitignore
+- config.toml: .codex/config.toml
+- hooks.json: .codex/hooks.json
+- README.md: README.md
+
+## My request for Codex:
+readme里加一点sft和lora的理论知识讲解
