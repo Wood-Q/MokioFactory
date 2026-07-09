@@ -1,0 +1,23 @@
+# Context from my IDE setup:
+
+## Active file: README.md
+
+## Active selection of the file:
+open-r1/codeforces
+## Open tabs:
+- README.md: README.md
+- README.md: models/README.md
+- training_resource_estimation.md: docs/training_resource_estimation.md
+- README.md: pipelines/ingest/README.md
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+
+## My request for Codex:
+先在readme里修改一下数据集
+1. Salesforce/xlam-function-calling-60k，用来训练toolcall能力
+2. Salesforce/APIGen-MT-5k，用来强化Agent能力
+3. https://huggingface.co/datasets/open-thoughts/OpenThoughts-Agent-v1-SFT用来强化能力
+4. https://huggingface.co/datasets/nvidia/OpenCodeInstruct，用来强化code能力
+5. https://huggingface.co/datasets/Glint-Research/Fable-5-traces，强化code项目能力
+
+我现在大致考虑的是这些，你觉得呢
+主要考虑还是希望尽可能筛一些新近的高质量的数据，Downloads last month  上个月的下载量这个值高比较好
