@@ -1,0 +1,9 @@
+# Context from my IDE setup:
+
+## Open tabs:
+- README.md: README.md
+- industry_sft_lora_rl_training.md: industry_sft_lora_rl_training.md
+
+## My request for Codex:
+工业界的话，现在会用llama-factory吗，还是用别的？
+我主要就是想复刻工业界，所以希望组件方法选择什么等都靠近工业界
