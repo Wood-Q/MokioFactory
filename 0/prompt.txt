@@ -1,0 +1,9 @@
+# Context from my IDE setup:
+
+## Active file: README.md
+
+## Open tabs:
+- README.md: README.md
+
+## My request for Codex:
+能否按照我这样的规划，你帮我跑一下数据集下载，保证全部下好落库
