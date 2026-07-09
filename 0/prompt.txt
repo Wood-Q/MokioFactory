@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Open tabs:
+- README.md: README.md
+- industry_sft_lora_rl_training.md: industry_sft_lora_rl_training.md
+
+## My request for Codex:
+我打算按照这个排commit
+stage1就是跑通基础的一个pipeline，stage2就是往更靠近工业级的改造过渡，stage3就是分布式的内容，工业界采用的
+phase1是数据部分、phase2是训练部分，phase3是测评部分、phase4是流水线串通
+
+现在我需要你先改一下现在的history里的命名
+然后接下来做stage1.phase2的第一步，就是纯接入llama-factory
