@@ -1,0 +1,14 @@
+# Context from my IDE setup:
+
+## Active file: mokiofactory.session.sql
+
+## Open tabs:
+- docker-compose.yml: deploy/PostgreSQL/docker-compose.yml
+- crud.py: deploy/PostgreSQL/learn/crud.py
+- curd.py: deploy/MinIO/learn/curd.py
+- README.md: deploy/PostgreSQL/README.md
+- README.md: deploy/README.md
+
+## My request for Codex:
+你帮我实现一下这一步
+先实现huggingface的下载脚本（要包含dataset下载，存到MinIO和PostgreSQL里）和配置yaml
