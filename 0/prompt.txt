@@ -1,0 +1,15 @@
+# Context from my IDE setup:
+
+## Active file: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+
+## Open tabs:
+- qwen3_4b_lora_sft_smoke.yaml: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+- README.md: pipelines/train/llamafactory/README.md
+- README.md: models/README.md
+- hooks.json: .codex/hooks.json
+- config.toml: .codex/config.toml
+
+## My request for Codex:
+不对不对，数据搜集完应该是schema转换和清洗
+
+你先帮我把这个065ddc0917358e81f76a8960709275c1c6e790b6暂存起来或者怎么样，下一步要做的应该是schema定义和算子搜集
