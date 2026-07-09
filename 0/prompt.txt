@@ -1,0 +1,25 @@
+# Context from my IDE setup:
+
+## Active file: deploy/README.md
+
+## Active selection of the file:
+- PostgreSQL — 结构化元数据存储。
+- MLflow — 实验追踪与模型版本记录。
+- K8s / Argo — 后续把流水线脚本变成 Job / Workflow。
+
+## Open tabs:
+- README.md: deploy/README.md
+- README.md: deploy/MinIO/README.md
+- curd.py: deploy/MinIO/learn/curd.py
+- put_object.py: deploy/MinIO/learn/put_object.py
+- .gitignore: .gitignore
+
+## My request for Codex:
+告诉我接下来MinIO可以部署之后，这些还需要吗？
+
+- PostgreSQL — 结构化元数据存储。
+- MLflow — 实验追踪与模型版本记录。
+- K8s / Argo — 后续把流水线脚本变成 Job / Workflow。
+
+而且能不能和我解释一下
+这些每个都有什么用
