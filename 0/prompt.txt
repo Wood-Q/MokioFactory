@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Open tabs:
+- README.md: pipelines/ingest/README.md
+- download_hf_dataset.py: pipelines/ingest/download_hf_dataset.py
+- .gitignore: .gitignore
+- curd.py: deploy/MinIO/learn/curd.py
+- README.md: deploy/MinIO/README.md
+
+## My request for Codex:
+你为我生成一份文档，简单一点少点废话
+1. 显存怎么估算（公式+举例+解释）
+2. 数据量怎么估算(公式+举例+解释)
