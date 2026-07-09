@@ -76,6 +76,27 @@ s3://mokio-lake/silver/schema=sft.v1/date=2026-07-09/manifest.json
 - 删除超长数据。
 - 按 messages 文本做基础去重。
 
+## Fable trace 转换
+
+`Glint-Research/Fable-5-traces` 不是普通的一行一条 SFT 数据，而是 coding-agent 的事件流。
+
+当前 parser 会按 `session` 事件切分 trace，把同一段 trace 内的事件转换为一条 `sft.v1` 样本：
+
+```text
+session -> model_change -> thinking_level_change -> user message -> assistant message
+```
+
+转换规则：
+
+- `message.role=user` 转成 `messages[].role=user`。
+- `message.role=assistant` 转成 `messages[].role=assistant`。
+- `content[].type=text` 保留为自然语言内容。
+- `content[].type=thinking` 保留为 assistant 内容，用于学习 agent 的规划过程。
+- `content[].type=toolCall` 会同时写入 assistant 内容和顶层 `tools` 字段。
+- `session / model_change / thinking_level_change` 不作为训练对话，只写入 `meta`。
+
+这样做的目的，是把 Fable 的项目级 agent trace 转成可治理、可过滤、可混合的统一 schema，而不是把整行 raw JSON 粗暴塞进 assistant 回复。
+
 ## 后续
 
 下一步会继续补：

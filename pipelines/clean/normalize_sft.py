@@ -171,6 +171,161 @@ def parse_conversations(conversations: Any, config: CleanConfig) -> list[dict[st
     return messages
 
 
+def fable_content_to_text(content: Any, config: CleanConfig) -> str:
+    if isinstance(content, str):
+        return normalize_text(content, config)
+    if not isinstance(content, list):
+        return normalize_text(content, config)
+
+    parts: list[str] = []
+    for item in content:
+        if not isinstance(item, dict):
+            text = normalize_text(item, config)
+            if text:
+                parts.append(text)
+            continue
+
+        part_type = item.get("type")
+        if part_type == "text":
+            text = normalize_text(item.get("text"), config)
+        elif part_type == "thinking":
+            text = normalize_text(item.get("thinking"), config)
+        elif part_type == "toolCall":
+            tool_call = {
+                "type": "tool_call",
+                "id": item.get("id"),
+                "name": item.get("name"),
+                "arguments": item.get("arguments") or {},
+            }
+            text = normalize_text(tool_call, config)
+        else:
+            text = normalize_text(item, config)
+
+        if text:
+            parts.append(text)
+
+    return "\n\n".join(parts)
+
+
+def fable_tools_from_content(content: Any) -> list[dict[str, Any]]:
+    if not isinstance(content, list):
+        return []
+
+    tools: list[dict[str, Any]] = []
+    for item in content:
+        if not isinstance(item, dict) or item.get("type") != "toolCall":
+            continue
+        tools.append(
+            {
+                "id": item.get("id"),
+                "name": item.get("name"),
+                "arguments": item.get("arguments") or {},
+            }
+        )
+    return tools
+
+
+def fable_event_to_message(row: dict[str, Any], config: CleanConfig) -> tuple[dict[str, str] | None, list[dict[str, Any]]]:
+    payload = row.get("message")
+    if not isinstance(payload, dict):
+        return None, []
+
+    role = str(payload.get("role") or "").lower()
+    if role not in {"user", "assistant", "system", "tool"}:
+        return None, []
+
+    content = payload.get("content")
+    text = fable_content_to_text(content, config)
+    msg = message(role, text, config)
+    return msg, fable_tools_from_content(content)
+
+
+def fable_trace_to_record(
+    rows: list[tuple[int, dict[str, Any]]],
+    *,
+    source_key: str,
+    trace_index: int,
+    config: CleanConfig,
+) -> tuple[dict[str, Any] | None, str | None]:
+    source_dataset = source_from_key(source_key)
+    task_family = task_family_from_source(source_dataset)
+    messages: list[dict[str, str]] = []
+    tools: list[dict[str, Any]] = []
+    session_row: dict[str, Any] | None = None
+    model_id: Any = None
+    thinking_level: Any = None
+
+    for _, row in rows:
+        row_type = row.get("type")
+        if row_type == "session":
+            session_row = row
+        elif row_type == "model_change":
+            model_id = row.get("modelId")
+        elif row_type == "thinking_level_change":
+            thinking_level = row.get("thinkingLevel")
+        elif row_type == "message":
+            msg, row_tools = fable_event_to_message(row, config)
+            if msg:
+                messages.append(msg)
+            tools.extend(row_tools)
+
+    if len(messages) < config.min_messages:
+        return None, "too_few_messages"
+    if not any(m["role"] == "assistant" and len(m["content"]) >= config.min_assistant_chars for m in messages):
+        return None, "missing_assistant"
+
+    total_chars = sum(len(m["content"]) for m in messages)
+    if total_chars > config.max_chars:
+        return None, "too_long"
+
+    raw_id = session_row.get("id") if session_row else f"trace-{trace_index}"
+    dedupe_key = "\n".join(f"{m['role']}:{m['content']}" for m in messages)
+    record = {
+        "id": stable_id(source_dataset, raw_id, trace_index, messages),
+        "schema_version": config.schema_version,
+        "source_dataset": source_dataset,
+        "task_family": task_family,
+        "domain": domain_from_task_family(task_family),
+        "messages": messages,
+        "tools": tools,
+        "quality_score": config.default_quality_score,
+        "meta": {
+            "raw_object_key": source_key,
+            "raw_row_index": rows[0][0] if rows else None,
+            "raw_row_indexes": [idx for idx, _ in rows],
+            "raw_id": raw_id,
+            "raw_event_count": len(rows),
+            "trace_index": trace_index,
+            "cwd": session_row.get("cwd") if session_row else None,
+            "model_id": model_id,
+            "thinking_level": thinking_level,
+            "dedupe_key_sha256": hashlib.sha256(dedupe_key.encode("utf-8")).hexdigest(),
+        },
+    }
+    return record, None
+
+
+def fable_traces_from_rows(rows: Iterable[tuple[int, dict[str, Any]]]) -> Iterable[list[tuple[int, dict[str, Any]]]]:
+    current: list[tuple[int, dict[str, Any]]] = []
+    for row_index, row in rows:
+        if row.get("type") == "session" and current:
+            yield current
+            current = []
+        current.append((row_index, row))
+    if current:
+        yield current
+
+
+def clean_fable_records(
+    rows: Iterable[tuple[int, dict[str, Any]]],
+    *,
+    source_key: str,
+    config: CleanConfig,
+) -> Iterable[tuple[dict[str, Any] | None, str | None]]:
+    for trace_index, trace_rows in enumerate(fable_traces_from_rows(rows)):
+        yield fable_trace_to_record(trace_rows, source_key=source_key, trace_index=trace_index, config=config)
+
+
 def row_to_messages(row: dict[str, Any], source_dataset: str, config: CleanConfig) -> tuple[list[dict[str, str]], list[Any]]:
     tools = row.get("tools") or []
 
@@ -209,12 +364,6 @@ def row_to_messages(row: dict[str, Any], source_dataset: str, config: CleanConfi
                 if assistant:
                     messages.append(assistant)
                 return messages, tools
-
-    # Last-resort adapter for trace-like project rows: preserve raw row as a supervised example.
-    if source_dataset == "glint-fable-5-traces":
-        user = message("user", "Summarize and learn from this coding-agent trace.", config)
-        assistant = message("assistant", row, config)
-        return ([m for m in (user, assistant) if m], tools)
 
     return [], tools
 
@@ -331,9 +480,19 @@ def normalize(config_path: Path) -> None:
     stats: dict[str, Any] = {"raw_files": raw_keys, "raw_rows": 0, "bronze_rows": 0, "silver_rows": 0, "dropped": {}}
 
     for key in raw_keys:
-        for row_index, row in iter_s3_jsonl(client, config.input_bucket, key):
-            stats["raw_rows"] += 1
-            record, reason = clean_record(row, source_key=key, row_index=row_index, config=config)
+        source_dataset = source_from_key(key)
+        raw_rows = list(iter_s3_jsonl(client, config.input_bucket, key))
+        stats["raw_rows"] += len(raw_rows)
+
+        if source_dataset == "glint-fable-5-traces":
+            cleaned = clean_fable_records(raw_rows, source_key=key, config=config)
+        else:
+            cleaned = (
+                clean_record(row, source_key=key, row_index=row_index, config=config)
+                for row_index, row in raw_rows
+            )
+
+        for record, reason in cleaned:
             if record is None:
                 stats["dropped"][reason or "unknown"] = stats["dropped"].get(reason or "unknown", 0) + 1
                 continue
