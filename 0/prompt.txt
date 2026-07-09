@@ -1,0 +1,15 @@
+# Context from my IDE setup:
+
+## Active file: deploy/MinIO/docker-compose.yml
+
+## Open tabs:
+- docker-compose.yml: deploy/MinIO/docker-compose.yml
+
+## My request for Codex:
+┌──────────────────┬───────────────────────┬─────────────────────────────────┐
+│  ●  minio1:9000  │  Uptime: 13 seconds   │  Version: 2026-06-06T02:44:06Z  │
+│  ○  minio2:9000  │  Uptime: Offline      │  Version: -                     │
+│  ○  minio3:9000  │  Uptime: Offline      │  Version: -                     │
+│  ●  minio4:9000  │  Uptime: 13 seconds   │  Version: 2026-06-06T02:44:06Z  │
+└──────────────────┴───────────────────────┴─────────────────────────────────┘
+为什么我每次都有两个活着两个offline了
