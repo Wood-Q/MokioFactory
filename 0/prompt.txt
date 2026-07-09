@@ -1,0 +1,11 @@
+# Context from my IDE setup:
+
+## Active file: pipelines/train/llamafactory/README.md
+
+## Open tabs:
+- README.md: pipelines/train/llamafactory/README.md
+- README.md: README.md
+- industry_sft_lora_rl_training.md: industry_sft_lora_rl_training.md
+
+## My request for Codex:
+那要加载数据的话是不是得跨容器读写？
