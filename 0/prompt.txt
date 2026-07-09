@@ -1,0 +1,13 @@
+# Context from my IDE setup:
+
+## Active file: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+
+## Open tabs:
+- qwen3_4b_lora_sft_smoke.yaml: configs/training/llamafactory/qwen3_4b_lora_sft_smoke.yaml
+- dataset_info.json: configs/training/llamafactory/dataset_info.json
+- stage1_phase2_smoke.jsonl: data/llamafactory/stage1_phase2_smoke.jsonl
+- README.md: data/llamafactory/README.md
+- README.md: pipelines/train/llamafactory/README.md
+
+## My request for Codex:
+先帮我写一下commit message，然后force push到远端
