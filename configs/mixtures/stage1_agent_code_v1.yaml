@@ -1,0 +1,47 @@
+mixture_version: agent-code-v1
+run_id: stage1-20260710-001
+
+input:
+  bucket: mokio-lake
+  silver_shard_key: silver/schema=sft.v1/date=2026-07-09/part-000000.jsonl
+  silver_manifest_key: silver/schema=sft.v1/date=2026-07-09/manifest.json
+  audit_report_key: audit/schema=sft.v1/run_id=stage1-20260710-001/report.json
+  schema_path: schemas/sft.schema.json
+
+output:
+  bucket: mokio-lake
+  prefix: gold/schema=sft.v1/mixture=agent-code-v1/run_id=stage1-20260710-001/
+  manifest_filename: manifest.json
+  records_per_shard: 1000
+
+selection:
+  seed: 20260710
+  validation_fraction: 0.05
+  allow_pending_manual_review_for_stage1_smoke: true
+
+governance:
+  allowed_use: research_and_learning
+  commercial_use_allowed: false
+  note: APIGen-MT-5k is CC-BY-NC-4.0 and Fable-5-traces is AGPL-3.0; this mixture is not approved for commercial use.
+
+sources:
+  salesforce-xlam-function-calling-60k:
+    target_records: 1400
+    license: cc-by-4.0
+    purpose: one-shot tool selection and argument generation
+  salesforce-apigen-mt-5k:
+    target_records: 800
+    license: cc-by-nc-4.0
+    purpose: multi-turn tool use and observation handling
+  openthoughts-agent-v1-sft:
+    target_records: 702
+    license: apache-2.0
+    purpose: terminal and coding-agent trajectories
+  glint-fable-5-traces:
+    target_records: 98
+    license: agpl-3.0
+    purpose: project-level coding-agent traces after audit exclusion
+  nvidia-opencodeinstruct:
+    target_records: 1000
+    license: cc-by-4.0
+    purpose: code generation and instruction following
