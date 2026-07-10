@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mokio-s3-credentials
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: mokioadmin
+  AWS_SECRET_ACCESS_KEY: mokioadmin123456
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mokio-clean-sft
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: mokio-clean-sft
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: clean-sft
+          image: mokiofactory-clean:stage1
+          imagePullPolicy: IfNotPresent
+          command:
+            - python
+            - pipelines/clean/normalize_sft.py
+            - --config
+            - configs/cleaning/stage1_phase1_sft_cleaning.yaml
+          env:
+            - name: AWS_ENDPOINT_URL
+              value: http://host.docker.internal:9000
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: mokio-s3-credentials
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mokio-s3-credentials
+                  key: AWS_SECRET_ACCESS_KEY
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2"
+              memory: "2Gi"

@@ -44,6 +44,8 @@ schemas/sft.schema.json
 
 ## 运行
 
+### 本地运行
+
 先确认 MinIO 可读：
 
 ```bash
@@ -64,6 +66,22 @@ s3://mokio-lake/bronze/schema=sft.v1/date=2026-07-09/part-000000.jsonl
 s3://mokio-lake/bronze/schema=sft.v1/date=2026-07-09/manifest.json
 s3://mokio-lake/silver/schema=sft.v1/date=2026-07-09/part-000000.jsonl
 s3://mokio-lake/silver/schema=sft.v1/date=2026-07-09/manifest.json
+```
+
+### kind / Kubernetes 运行
+
+本地脚本跑通后，可以用 kind 起一个小型 Kubernetes 集群，把清洗任务作为 K8s Job 执行。
+
+这一步用于学习工业里常见的批处理任务形态：
+
+```text
+Docker image -> Kubernetes Job -> Pod 执行清洗 -> 写回 MinIO
+```
+
+配置和操作说明见：
+
+```text
+deploy/kind/README.md
 ```
 
 ## 当前清洗规则
