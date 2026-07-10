@@ -1,19 +1,47 @@
-.claude
-.venv
+# Local assistants / IDE state
+.claude/
+.entire/logs/
+.entire/cache/
+.entire/tmp/
+.codex/logs/
+.codex/tmp/
+.vscode/
+.idea/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
 
 # Python
 __pycache__/
 *.py[cod]
 *.egg-info/
+.eggs/
+build/
+dist/
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+.pyre/
+.coverage
+coverage.xml
+htmlcov/
 
 # Data lake（本地缓存/下载产物，不入库；真实数据在 MinIO）
 data/
+outputs/
+artifacts/
+logs/
+tmp/
+temp/
 *.jsonl
 *.jsonl.zst
 *.parquet
 *.arrow
+*.csv
+*.tsv
 !configs/**/*.json
 !schemas/**/*.json
 
@@ -21,15 +49,34 @@ data/
 *.safetensors
 *.bin
 *.pt
+*.pth
 *.ckpt
+*.onnx
+*.gguf
 checkpoints/
+runs/
+wandb/
+mlruns/
 
 # 环境
 .env
+.env.*
+!.env.example
 .env.local
 minio.license
 **/minio.license
 
+# Hugging Face / dataset caches
+.cache/
+hf_cache/
+huggingface/
+.huggingface/
+
+# Local service volumes
+deploy/**/data/
+deploy/**/volumes/
+deploy/**/.data/
+
 # 系统
 .DS_Store
-.vscode
+Thumbs.db

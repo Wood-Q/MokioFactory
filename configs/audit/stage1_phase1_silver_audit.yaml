@@ -1,0 +1,47 @@
+audit_version: silver-audit.v1
+
+input:
+  bucket: mokio-lake
+  shard_key: silver/schema=sft.v1/date=2026-07-09/part-000000.jsonl
+  manifest_key: silver/schema=sft.v1/date=2026-07-09/manifest.json
+  schema_path: schemas/sft.schema.json
+
+output:
+  bucket: mokio-lake
+  prefix: audit/schema=sft.v1/run_id=stage1-20260710-001/
+  report_filename: report.json
+  review_queue_filename: review_queue.jsonl
+  manifest_filename: manifest.json
+  local_markdown_path: reports/data_quality/stage1_phase1_silver_audit.md
+
+policy:
+  max_total_chars: 32000
+  warn_total_chars: 24000
+  max_messages: 64
+  sources_requiring_tool_definitions:
+    - salesforce-xlam-function-calling-60k
+    - salesforce-apigen-mt-5k
+  blocking_flags:
+    - schema_error
+    - empty_message
+    - missing_assistant
+    - invalid_turn_order
+    - too_long
+    - unparsed_tool_definition
+    - missing_tool_definition
+
+sampling:
+  seed: 20260710
+  per_source: 5
+  per_flag: 5
+
+gate:
+  max_blocked_fraction: 0.01
+  zero_tolerance_flags:
+    - schema_error
+    - empty_message
+    - missing_assistant
+    - unparsed_tool_definition
+    - missing_tool_definition
+  stage1_smoke_can_proceed_without_manual_approval: true
+  production_requires_manual_approval: true

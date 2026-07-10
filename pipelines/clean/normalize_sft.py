@@ -139,11 +139,49 @@ def domain_from_task_family(task_family: str) -> str:
     return "general"
 
 
-def message(role: str, content: Any, config: CleanConfig) -> dict[str, str] | None:
+def message(
+    role: str,
+    content: Any,
+    config: CleanConfig,
+    *,
+    name: str | None = None,
+) -> dict[str, str] | None:
     text = normalize_text(content, config)
     if config.drop_empty_content and not text:
         return None
-    return {"role": role, "content": text}
+    result = {"role": role, "content": text}
+    if name:
+        result["name"] = name
+    return result
+
+
+def normalize_tools(value: Any) -> list[Any]:
+    if value is None or value == "":
+        return []
+
+    parsed = value
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return [value]
+
+    items = parsed if isinstance(parsed, list) else [parsed]
+    normalized: list[Any] = []
+    for item in items:
+        if isinstance(item, str):
+            try:
+                decoded = json.loads(item)
+            except json.JSONDecodeError:
+                normalized.append(item)
+                continue
+            if isinstance(decoded, list):
+                normalized.extend(decoded)
+            else:
+                normalized.append(decoded)
+        else:
+            normalized.append(item)
+    return normalized
 
 
 def parse_conversations(conversations: Any, config: CleanConfig) -> list[dict[str, str]]:
@@ -164,8 +202,16 @@ def parse_conversations(conversations: Any, config: CleanConfig) -> list[dict[st
             "tool": "tool",
             "observation": "tool",
         }
-        normalized_role = role_map.get(str(role).lower(), "assistant" if messages else "user")
-        msg = message(normalized_role, content, config)
+        raw_role = str(role).lower()
+        normalized_role = role_map.get(raw_role, "assistant" if messages else "user")
+        name = item.get("name")
+        if raw_role in {"function", "function_call", "tool_call"}:
+            normalized_role = "assistant"
+            name = "function_call"
+        elif raw_role in {"observation", "tool"} and not normalize_text(content, config):
+            content = "{}"
+
+        msg = message(normalized_role, content, config, name=name)
         if msg:
             messages.append(msg)
     return messages
@@ -207,7 +253,7 @@ def fable_content_to_text(content: Any, config: CleanConfig) -> str:
     return "\n\n".join(parts)
 
 
-def fable_tools_from_content(content: Any) -> list[dict[str, Any]]:
+def fable_tool_calls_from_content(content: Any) -> list[dict[str, Any]]:
     if not isinstance(content, list):
         return []
 
@@ -237,7 +283,7 @@ def fable_event_to_message(row: dict[str, Any], config: CleanConfig) -> tuple[di
     content = payload.get("content")
     text = fable_content_to_text(content, config)
     msg = message(role, text, config)
-    return msg, fable_tools_from_content(content)
+    return msg, fable_tool_calls_from_content(content)
 
 
 def fable_trace_to_record(
@@ -250,7 +296,7 @@ def fable_trace_to_record(
     source_dataset = source_from_key(source_key)
     task_family = task_family_from_source(source_dataset)
     messages: list[dict[str, str]] = []
-    tools: list[dict[str, Any]] = []
+    tool_calls: list[dict[str, Any]] = []
     session_row: dict[str, Any] | None = None
     model_id: Any = None
     thinking_level: Any = None
@@ -264,10 +310,10 @@ def fable_trace_to_record(
         elif row_type == "thinking_level_change":
             thinking_level = row.get("thinkingLevel")
         elif row_type == "message":
-            msg, row_tools = fable_event_to_message(row, config)
+            msg, row_tool_calls = fable_event_to_message(row, config)
             if msg:
                 messages.append(msg)
-            tools.extend(row_tools)
+            tool_calls.extend(row_tool_calls)
 
     if len(messages) < config.min_messages:
         return None, "too_few_messages"
@@ -287,7 +333,7 @@ def fable_trace_to_record(
         "task_family": task_family,
         "domain": domain_from_task_family(task_family),
         "messages": messages,
-        "tools": tools,
+        "tools": [],
         "quality_score": config.default_quality_score,
         "meta": {
             "raw_object_key": source_key,
@@ -299,6 +345,7 @@ def fable_trace_to_record(
             "cwd": session_row.get("cwd") if session_row else None,
             "model_id": model_id,
             "thinking_level": thinking_level,
+            "tool_calls": tool_calls,
             "dedupe_key_sha256": hashlib.sha256(dedupe_key.encode("utf-8")).hexdigest(),
         },
     }
@@ -327,7 +374,7 @@ def clean_fable_records(
 
 
 def row_to_messages(row: dict[str, Any], source_dataset: str, config: CleanConfig) -> tuple[list[dict[str, str]], list[Any]]:
-    tools = row.get("tools") or []
+    tools = normalize_tools(row.get("tools"))
 
     if isinstance(row.get("messages"), list):
         return parse_conversations(row["messages"], config), tools
@@ -343,7 +390,11 @@ def row_to_messages(row: dict[str, Any], source_dataset: str, config: CleanConfi
     if "query" in row and "answers" in row:
         messages = []
         user = message("user", row.get("query"), config)
-        assistant = message("assistant", row.get("answers"), config)
+        assistant_name = "function_call" if source_dataset in {
+            "salesforce-xlam-function-calling-60k",
+            "xlam-function-calling-60k",
+        } else None
+        assistant = message("assistant", row.get("answers"), config, name=assistant_name)
         if user:
             messages.append(user)
         if assistant:
