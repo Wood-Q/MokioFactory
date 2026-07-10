@@ -1,0 +1,17 @@
+export_version: llamafactory-sharegpt.v1
+
+input:
+  bucket: mokio-lake
+  gold_manifest_key: gold/schema=sft.v1/mixture=agent-code-v1/run_id=stage1-20260710-001/manifest.json
+
+output:
+  bucket: mokio-lake
+  prefix: exports/format=llamafactory-sharegpt/mixture=agent-code-v1/run_id=stage1-20260710-001/
+  train_filename: train.jsonl
+  validation_filename: validation.jsonl
+  dataset_info_filename: dataset_info.json
+  manifest_filename: manifest.json
+
+datasets:
+  train_name: mokio_agent_code_v1_train
+  validation_name: mokio_agent_code_v1_validation

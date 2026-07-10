@@ -4,11 +4,11 @@
 
 ---
 
-## 本次 Commit 概述：Stage 1 · Phase 1 · 数据部分（Schema 转换 / 基础清洗）
+## 当前进度：Stage 1 · Phase 1 · 数据闭环
 
 ### 目标
 
-在已经完成 Hugging Face 数据下载、MinIO raw 落湖、PostgreSQL 元数据登记之后，继续推进 Stage 1 · Phase 1 的下一步：把 raw 层不同来源、不同字段结构的数据统一转换成 `sft.v1` schema，并生成 bronze / silver 两层数据。本 commit **只做 schema 转换与基础清洗**，不进入训练。
+在完成 Hugging Face 数据下载、MinIO raw 落湖、PostgreSQL 元数据登记之后，已经把 raw 数据统一为 `sft.v1`，完成 bronze/silver 清洗、全量质检、gold 配比发布和 LLaMA-Factory 导出。本阶段仍不进入训练，训练从 Stage 1 · Phase 2 开始。
 
 ### 范围
 
@@ -31,6 +31,16 @@
 5. **Manifest**
    - bronze / silver 各自生成 `manifest.json`。
    - 记录样本数、字节数、sha256、清洗统计、输入 raw 文件列表。
+6. **全量审核与人工审核队列**
+   - 用 JSON Schema 验证 10057 条 silver 记录。
+   - 生成来源画像、自动质量 gate 和 40 条分层抽样审核队列。
+   - 阻断异常轮次和超长记录，生产环境保留人工批准要求。
+7. **Gold mixture 发布**
+   - 从审核通过的记录中按固定 seed 无放回抽样 4000 条。
+   - 按来源做 95% train / 5% validation 分层切分，并发布多 shard manifest。
+8. **训练格式导出**
+   - 把 canonical `sft.v1` 转为 LLaMA-Factory ShareGPT JSONL。
+   - 导出 `train.jsonl`、`validation.jsonl` 和 `dataset_info.json` 到对象存储。
 
 ### 已下载数据集
 
@@ -67,13 +77,22 @@ Code SFT:            25%  nvidia/OpenCodeInstruct
 当前数据链路：
 
 ```text
-HF download -> MinIO raw -> PostgreSQL metadata -> schema normalize -> bronze -> clean/dedup -> silver
+HF download -> MinIO raw -> PostgreSQL metadata -> bronze -> silver -> audit -> gold -> LLaMA-Factory export
 ```
 
-后续继续进入：
+本次真实数据检查：
 
 ```text
-silver -> gold mixture -> tokenize -> Qwen3-4B QLoRA SFT -> eval
+silver:     10057 records
+audit:      10027 eligible / 30 blocked (0.298%, gate passed_with_warnings)
+gold:       4000 records = 3800 train + 200 validation
+export:     4000 ShareGPT records, 2195 records contain function calls
+```
+
+下一阶段：
+
+```text
+Stage 1 · Phase 2 -> Qwen3-4B LoRA SFT smoke test on an NVIDIA GPU -> eval baseline
 ```
 
 ### 产物
@@ -82,7 +101,15 @@ silver -> gold mixture -> tokenize -> Qwen3-4B QLoRA SFT -> eval
 - `configs/cleaning/stage1_phase1_sft_cleaning.yaml`
 - `pipelines/clean/normalize_sft.py`
 - `pipelines/clean/README.md`
+- `configs/audit/stage1_phase1_silver_audit.yaml`
+- `pipelines/audit/`
+- `configs/mixtures/stage1_agent_code_v1.yaml`
+- `pipelines/mixture/`
+- `configs/export/stage1_llamafactory_sharegpt.yaml`
+- `pipelines/export/`
+- `reports/data_quality/stage1_phase1_silver_audit.md`
 - bronze / silver 层 JSONL shard 与 `manifest.json`
+- audit / gold / LLaMA-Factory export 层 JSONL 与 `manifest.json`
 
 ### 验收
 
@@ -99,6 +126,7 @@ silver -> gold mixture -> tokenize -> Qwen3-4B QLoRA SFT -> eval
   s3://mokio-lake/bronze/schema=sft.v1/date=2026-07-09/
   s3://mokio-lake/silver/schema=sft.v1/date=2026-07-09/
   ```
+- 已实际验证 audit、gold 和 export 的 manifest；gold train/validation 无重复、无交叉，且导出的 ShareGPT JSONL 可被 `datasets` 正常加载。
 
 ---
 
