@@ -1,0 +1,129 @@
+# LLaMA-Factory Qwen3-4B QLoRA Smoke
+
+本阶段使用官方 Docker 镜像，不 clone LLaMA-Factory 源码。当前配置参考官方 Qwen3 LoRA/QLoRA 示例，基座为 `Qwen/Qwen3-4B-Instruct-2507`，模板为 `qwen3_nothink`。
+
+## LoRA 与 QLoRA
+
+- LoRA 冻结基座权重，只训练低秩 adapter，显存主要用于基座权重、激活和优化器状态。
+- QLoRA 在 LoRA 基础上把冻结的基座权重量化为 4-bit，进一步降低显存；adapter 仍以较高精度训练。
+- 当前配置使用 bitsandbytes 4-bit、LoRA rank 8、单卡 batch size 1 和梯度累积 8，面向 RTX 3090 / 4090 24GB 或租用的同级 NVIDIA GPU。
+
+QLoRA smoke 产生的是 adapter checkpoint，不是完整模型权重。后续验证效果后再做完整训练、adapter 合并和模型发布。
+
+## 为什么先跑 Smoke
+
+20 step smoke 主要验证：
+
+```text
+ShareGPT 数据 -> tokenizer/template -> 4-bit Qwen3 -> LoRA backward
+    -> eval_loss -> adapter checkpoint -> 本地 output 目录
+```
+
+验收标准：
+
+- 训练集和验证集能被 LLaMA-Factory 识别。
+- GPU 正常分配，没有 CPU fallback。
+- loss / eval_loss 是有限数值，没有 NaN。
+- `/workspace/output/qwen3-4b-qlora-sft-smoke` 生成 adapter 和 trainer state。
+
+## 运行环境
+
+预构建 CUDA 镜像面向 x86_64 NVIDIA Linux。macOS Docker 无法把 Apple GPU 暴露给这个容器，因此 Mac 只负责数据准备，训练需要 NVIDIA Linux 主机。
+
+GPU 主机需要：
+
+- NVIDIA Driver。
+- Docker Engine。
+- NVIDIA Container Toolkit。
+
+先验证 Docker 能看到 GPU：
+
+```bash
+docker run --rm --gpus all \
+  nvidia/cuda:12.4.1-base-ubuntu22.04 \
+  nvidia-smi
+```
+
+## 1. Materialize 训练数据
+
+如果 GPU 主机可以访问 MinIO / OSS：
+
+```bash
+.venv/bin/python -m pipelines.train.llamafactory.materialize_dataset \
+  --config configs/training/llamafactory/stage1_dataset_materialization.yaml
+```
+
+脚本会下载并校验：
+
+```text
+data/llamafactory/stage1_agent_code_v1/
+  train.jsonl                 3800 records
+  validation.jsonl             200 records
+  dataset_info.json
+  materialization_manifest.json
+```
+
+如果 MinIO 只运行在 Mac 本机，可以先在 Mac materialize，再用 `rsync/scp` 把整个 `data/llamafactory/stage1_agent_code_v1/` 目录传到 GPU 主机；生产环境通常让训练 Job 从云端 OSS 下载到本地 NVMe 或 PVC。
+
+## 2. 拉取 LLaMA-Factory 镜像
+
+```bash
+docker pull hiyouga/llamafactory:latest
+```
+
+`latest` 适合第一次 smoke。跑通后应记录镜像 digest，并在正式训练中固定 digest，避免未来镜像更新导致配置不可复现。
+
+中国大陆网络可按需设置：
+
+```bash
+export HF_ENDPOINT=https://hf-mirror.com
+```
+
+私有或 gated 模型才需要：
+
+```bash
+export HF_TOKEN=hf_xxx
+```
+
+不要把 token 写进 YAML 或提交到 Git。
+
+## 3. 启动训练
+
+在仓库根目录执行：
+
+```bash
+bash deploy/LLaMAFactory/run_smoke.sh
+```
+
+脚本挂载四类目录：
+
+```text
+dataset     -> /workspace/dataset:ro
+config      -> /workspace/config:ro
+output      -> /workspace/output
+HF cache    -> /root/.cache/huggingface
+```
+
+数据和配置只读挂载，checkpoint 单独写入 output，模型缓存持久化，容器删除后结果仍然保留。
+
+## 关键训练参数
+
+| 参数 | Smoke 值 | 作用 |
+|---|---:|---|
+| `quantization_bit` | 4 | 4-bit 加载冻结基座 |
+| `lora_rank` | 8 | adapter 容量 |
+| `cutoff_len` | 2048 | 单样本最大 token 长度 |
+| `max_samples` | 200 | 限制 smoke 数据规模 |
+| `max_steps` | 20 | 限制训练时间 |
+| `gradient_accumulation_steps` | 8 | 模拟更大的有效 batch |
+| `bf16` | true | Ampere 及以后 GPU 的训练精度 |
+
+如果 24GB 卡仍然 OOM，第一步把 `cutoff_len` 降到 1024；不要先删除数据或提高量化压缩。
+
+## 输出检查
+
+```bash
+find outputs/llamafactory/qwen3-4b-qlora-sft-smoke -maxdepth 2 -type f | sort
+```
+
+smoke 通过后，下一步才是移除 `max_samples` / `max_steps` 限制，配置正式 epoch、checkpoint 策略和 MLflow，再进入完整 SFT。

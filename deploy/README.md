@@ -7,6 +7,7 @@
 - [MinIO AIStor 单节点部署](MinIO/README.md) — 本地 S3 兼容对象存储，用于 `mokio-lake` 数据湖。
 - [PostgreSQL 单节点部署](PostgreSQL/README.md) — 结构化元数据存储，用于记录数据集版本、manifest、文件索引和 pipeline run。
 - [kind 清洗 Job](kind/README.md) — 用本地 Kubernetes 集群运行 `normalize_sft.py`，模拟工业里的批处理清洗任务。
+- [LLaMA-Factory Docker](LLaMAFactory/README.md) — 在 NVIDIA Linux 主机上运行 Qwen3-4B QLoRA smoke test。
 
 后续计划：
 

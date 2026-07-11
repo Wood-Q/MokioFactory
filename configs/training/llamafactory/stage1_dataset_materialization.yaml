@@ -1,0 +1,7 @@
+input:
+  bucket: mokio-lake
+  export_manifest_key: exports/format=llamafactory-sharegpt/mixture=agent-code-v1/run_id=stage1-20260710-001/manifest.json
+
+output:
+  local_dir: data/llamafactory/stage1_agent_code_v1
+  local_manifest_filename: materialization_manifest.json

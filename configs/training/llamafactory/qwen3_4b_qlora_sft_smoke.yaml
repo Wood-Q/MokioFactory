@@ -1,0 +1,52 @@
+### model
+model_name_or_path: Qwen/Qwen3-4B-Instruct-2507
+quantization_bit: 4
+quantization_method: bnb
+double_quantization: false
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 8
+lora_target: all
+
+### dataset
+dataset: mokio_agent_code_v1_train
+eval_dataset: mokio_agent_code_v1_validation
+dataset_dir: /workspace/dataset
+template: qwen3_nothink
+cutoff_len: 2048
+max_samples: 200
+overwrite_cache: true
+preprocessing_num_workers: 4
+dataloader_num_workers: 2
+
+### output
+output_dir: /workspace/output/qwen3-4b-qlora-sft-smoke
+logging_steps: 1
+save_steps: 20
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: false
+report_to: none
+
+### train
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-4
+max_steps: 20
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+gradient_checkpointing: true
+seed: 20260711
+ddp_timeout: 180000000
+resume_from_checkpoint: null
+
+### eval
+per_device_eval_batch_size: 1
+eval_strategy: steps
+eval_steps: 20

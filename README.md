@@ -4,7 +4,22 @@
 
 ---
 
-## 当前进度：Stage 1 · Phase 1 · 数据闭环
+## 当前进度：Stage 1 · Phase 2 · 训练接入
+
+Stage 1 · Phase 1 数据闭环已经完成。Phase 2 已接入 LLaMA-Factory 官方 Docker 镜像和 `Qwen/Qwen3-4B-Instruct-2507` 4-bit QLoRA smoke 配置，当前状态是“数据与配置已验证，等待 NVIDIA Linux 主机实际训练”。
+
+最小训练入口：
+
+```bash
+.venv/bin/python -m pipelines.train.llamafactory.materialize_dataset \
+  --config configs/training/llamafactory/stage1_dataset_materialization.yaml
+
+bash deploy/LLaMAFactory/run_smoke.sh
+```
+
+完整说明见 `pipelines/train/llamafactory/README.md`。Mac 只负责数据准备；CUDA 训练需要 RTX 3090 / 4090 24GB 或同级租用 NVIDIA GPU。
+
+## Stage 1 · Phase 1 · 数据闭环（已完成）
 
 ### 目标
 
@@ -89,10 +104,10 @@ gold:       4000 records = 3800 train + 200 validation
 export:     4000 ShareGPT records, 2195 records contain function calls
 ```
 
-下一阶段：
+当前下一动作：
 
 ```text
-Stage 1 · Phase 2 -> Qwen3-4B LoRA SFT smoke test on an NVIDIA GPU -> eval baseline
+在 NVIDIA Linux 上执行 Qwen3-4B QLoRA 20-step smoke -> 检查 loss/eval_loss/checkpoint -> Phase 3 baseline eval
 ```
 
 ### 产物

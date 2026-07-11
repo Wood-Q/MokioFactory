@@ -8,7 +8,7 @@
 
 - `Qwen/Qwen3-0.6B`：第一版首选，成本低，适合 3090 / 低成本租卡跑通完整链路。
 - `Qwen/Qwen3-1.7B`：第二阶段选择，适合做更有体感的 SFT / LoRA / DPO。
-- `Qwen/Qwen3-4B`：成本更高，作为后续租卡实验目标。
+- `Qwen/Qwen3-4B-Instruct-2507`：Stage 1 · Phase 2 的实际 smoke 基座；使用 4-bit QLoRA 在 24GB NVIDIA GPU 上验证训练闭环。
 
 项目原则：
 
@@ -17,4 +17,4 @@
 - 微调、继续训练、评测都通过 `transformers` / `trl` / `peft` / `LLaMA-Factory` 加载 Qwen3。
 - tokenizer 复用 Qwen3 官方 tokenizer，不重新训练 tokenizer。
 
-后续训练阶段围绕 Qwen3 小参数基座展开（详见 `plan_concise.md` §11）。
+当前训练入口见 `pipelines/train/llamafactory/README.md`。0.6B / 1.7B 仍适合低成本算法验证，4B 用于本项目真正的 Agent/Code SFT smoke。
