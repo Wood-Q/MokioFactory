@@ -6,7 +6,7 @@
 
 ## 当前进度：Stage 1 · Phase 2 · 训练接入
 
-Stage 1 · Phase 1 数据闭环已经完成。Phase 2 已接入 LLaMA-Factory 官方 Docker 镜像和 `Qwen/Qwen3-4B-Instruct-2507` 4-bit QLoRA smoke 配置，当前状态是“数据与配置已验证，等待 NVIDIA Linux 主机实际训练”。
+Stage 1 · Phase 1 数据闭环已经完成。Phase 2 已接入 LLaMA-Factory 和 `Qwen/Qwen3-4B-Instruct-2507` 4-bit QLoRA，单张 RTX 3090 的 20-step smoke 已跑通。当前正在把训练时发现的尾部不完整 Agent 轨迹校验前移到导出阶段，确保训练框架不再静默跳过样本。
 
 最小训练入口：
 
@@ -107,7 +107,7 @@ export:     4000 ShareGPT records, 2195 records contain function calls
 当前下一动作：
 
 ```text
-在 NVIDIA Linux 上执行 Qwen3-4B QLoRA 20-step smoke -> 检查 loss/eval_loss/checkpoint -> Phase 3 baseline eval
+LLaMA-Factory schema audit 修复 -> 重跑 Qwen3-4B QLoRA smoke -> Phase 3 baseline eval
 ```
 
 ### 产物

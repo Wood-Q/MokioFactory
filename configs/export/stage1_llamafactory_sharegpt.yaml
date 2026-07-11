@@ -10,6 +10,7 @@ output:
   train_filename: train.jsonl
   validation_filename: validation.jsonl
   dataset_info_filename: dataset_info.json
+  schema_audit_filename: schema_audit.json
   manifest_filename: manifest.json
 
 datasets:

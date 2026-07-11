@@ -48,7 +48,7 @@ def materialize(config_path: Path, *, overwrite: bool) -> None:
     client = s3_client()
     export_manifest = read_json(client, input_config["bucket"], input_config["export_manifest_key"])
     materialized_files: dict[str, Any] = {}
-    for name in ("train", "validation", "dataset_info"):
+    for name in ("train", "validation", "dataset_info", "schema_audit"):
         source = export_manifest["files"][name]
         object_key = source["object_key"]
         local_path = destination / Path(object_key).name

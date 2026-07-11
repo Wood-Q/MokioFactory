@@ -60,8 +60,26 @@ data/llamafactory/stage1_agent_code_v1/
   train.jsonl                 3800 records
   validation.jsonl             200 records
   dataset_info.json
+  schema_audit.json
   materialization_manifest.json
 ```
+
+### Train / Validation 如何切分
+
+切分发生在 gold mixture 阶段，不是在训练机上临时随机切：
+
+| 来源 | Train | Validation |
+|---|---:|---:|
+| xLAM Function Calling | 1330 | 70 |
+| APIGen-MT | 760 | 40 |
+| OpenThoughts Agent | 667 | 35 |
+| Fable traces | 93 | 5 |
+| OpenCodeInstruct | 950 | 50 |
+| 合计 | 3800 | 200 |
+
+每个来源独立使用固定 seed `20260710` 做无放回 95%/5% 分层切分，再分别稳定 shuffle。这样每次重跑得到相同 split，train/validation ID 不交叉，且小来源不会在 validation 中消失。
+
+这里的 validation 用于观察训练期间的 `eval_loss`、选择 checkpoint 和发现过拟合。Phase 3 仍需要独立 benchmark/test set 测 tool calling、Agent 和 Code 能力，不能把这 200 条 validation 当作最终模型能力测评。
 
 如果 MinIO 只运行在 Mac 本机，可以先在 Mac materialize，再用 `rsync/scp` 把整个 `data/llamafactory/stage1_agent_code_v1/` 目录传到 GPU 主机；生产环境通常让训练 Job 从云端 OSS 下载到本地 NVMe 或 PVC。
 
@@ -126,4 +144,6 @@ HF cache    -> /root/.cache/huggingface
 find outputs/llamafactory/qwen3-4b-qlora-sft-smoke -maxdepth 2 -type f | sort
 ```
 
-smoke 通过后，下一步才是移除 `max_samples` / `max_steps` 限制，配置正式 epoch、checkpoint 策略和 MLflow，再进入完整 SFT。
+本次单卡 RTX 3090 smoke 已跑通：20 steps、198 条有效 train/validation、`train_loss=0.8498`、`eval_loss=0.7171`。其中各 2 条被跳过的原因是尾部不完整 Agent 轮次；全量 schema audit 共修复 train 15 条、validation 2 条，修复后需要重跑 smoke，预期 train/validation 均完整加载 200 条 smoke 样本。
+
+修复版 smoke 通过后，下一步才是移除 `max_samples` / `max_steps` 限制，配置正式 epoch、checkpoint 策略和 MLflow，再进入完整 SFT。
