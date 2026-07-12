@@ -9,7 +9,7 @@ OUTPUT_DIR="${MOKIO_OUTPUT_DIR:-${ROOT_DIR}/outputs/llamafactory}"
 HF_CACHE_DIR="${HF_HOME:-${HOME}/.cache/huggingface}"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
-  echo "This smoke runner requires an NVIDIA Linux host. Prepare data on macOS, then run training on Linux." >&2
+  echo "This full runner requires an NVIDIA Linux host." >&2
   exit 1
 fi
 
@@ -37,4 +37,4 @@ docker run --rm \
   -v "${OUTPUT_DIR}:/workspace/output" \
   -v "${HF_CACHE_DIR}:/root/.cache/huggingface" \
   "${IMAGE}" \
-  llamafactory-cli train /workspace/config/qwen3_4b_qlora_sft_smoke.yaml
+  llamafactory-cli train /workspace/config/qwen3_4b_qlora_sft_full.yaml

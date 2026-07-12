@@ -147,3 +147,62 @@ find outputs/llamafactory/qwen3-4b-qlora-sft-smoke -maxdepth 2 -type f | sort
 本次单卡 RTX 3090 smoke 已跑通：20 steps、198 条有效 train/validation、`train_loss=0.8498`、`eval_loss=0.7171`。其中各 2 条被跳过的原因是尾部不完整 Agent 轮次；全量 schema audit 共修复 train 15 条、validation 2 条，修复后需要重跑 smoke，预期 train/validation 均完整加载 200 条 smoke 样本。
 
 修复版 smoke 通过后，下一步才是移除 `max_samples` / `max_steps` 限制，配置正式 epoch、checkpoint 策略和 MLflow，再进入完整 SFT。
+
+## 全量单卡基线
+
+完整配置为：
+
+```text
+configs/training/llamafactory/qwen3_4b_qlora_sft_full.yaml
+```
+
+它使用全部 `3800 train + 200 validation`，单卡训练 1 epoch：
+
+| 参数 | 值 |
+|---|---:|
+| 预计 optimizer steps | 475 |
+| 有效 batch size | 8 |
+| learning rate | 1e-4 |
+| warmup steps | 48 |
+| eval/save interval | 100 steps |
+| checkpoint 保留数 | 2 |
+
+Stage 1 先做 1 epoch 基线，观察 train/eval loss 后再决定是否增加到 2 epoch，避免直接在 3800 条小数据上重复训练导致过拟合。
+
+Docker 运行：
+
+```bash
+bash deploy/LLaMAFactory/run_full.sh
+```
+
+### 实时查看 Loss
+
+正式配置启用 TensorBoard，并每 5 steps 写一次日志。训练机启动：
+
+```bash
+tensorboard \
+  --logdir outputs/llamafactory/qwen3-4b-qlora-sft-full-v1/tensorboard \
+  --host 127.0.0.1 \
+  --port 6006
+```
+
+Mac 另开终端建立 SSH 隧道：
+
+```bash
+ssh -N -L 6006:127.0.0.1:6006 shanghai-3090-34-qhk
+```
+
+浏览器打开 `http://127.0.0.1:6006`，重点看：
+
+- `train/loss`：训练 loss 总体应下降，短期上下波动正常。
+- `eval/loss`：用于判断泛化；train loss 继续下降而 eval loss 持续上升通常意味着过拟合。
+- `train/learning_rate`：确认 warmup 和 cosine decay 按配置执行。
+- `train/grad_norm`：持续突增或出现 NaN 时需要检查学习率、异常长样本和数值稳定性。
+
+训练结束后还会在 output 目录生成：
+
+```text
+training_loss.png
+training_eval_loss.png
+trainer_log.jsonl
+```

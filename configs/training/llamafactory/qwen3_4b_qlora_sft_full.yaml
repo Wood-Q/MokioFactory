@@ -1,0 +1,58 @@
+### model
+model_name_or_path: Qwen/Qwen3-4B-Instruct-2507
+quantization_bit: 4
+quantization_method: bnb
+double_quantization: false
+trust_remote_code: true
+upcast_layernorm: true
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_rank: 8
+lora_target: all
+
+### dataset
+dataset: mokio_agent_code_v1_train
+eval_dataset: mokio_agent_code_v1_validation
+dataset_dir: /workspace/dataset
+template: qwen3_nothink
+cutoff_len: 2048
+overwrite_cache: true
+preprocessing_num_workers: 4
+dataloader_num_workers: 2
+
+### output
+output_dir: /workspace/output/qwen3-4b-qlora-sft-full-v1
+logging_dir: /workspace/output/qwen3-4b-qlora-sft-full-v1/tensorboard
+logging_steps: 5
+save_strategy: steps
+save_steps: 100
+save_total_limit: 2
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: false
+report_to: tensorboard
+
+### train
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-4
+num_train_epochs: 1.0
+lr_scheduler_type: cosine
+warmup_steps: 48
+bf16: true
+gradient_checkpointing: true
+seed: 20260711
+ddp_timeout: 180000000
+resume_from_checkpoint: null
+
+### eval
+do_eval: true
+per_device_eval_batch_size: 1
+eval_strategy: steps
+eval_steps: 100
+load_best_model_at_end: true
+metric_for_best_model: eval_loss
+greater_is_better: false
