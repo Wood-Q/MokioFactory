@@ -25,7 +25,6 @@ dataloader_num_workers: 2
 
 ### output
 output_dir: /workspace/output/qwen3-4b-qlora-sft-full-v1
-logging_dir: /workspace/output/qwen3-4b-qlora-sft-full-v1/tensorboard
 logging_steps: 5
 save_strategy: steps
 save_steps: 100

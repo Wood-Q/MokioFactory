@@ -32,6 +32,7 @@ docker run --rm \
   --ipc=host \
   -e HF_TOKEN \
   -e HF_ENDPOINT \
+  -e TENSORBOARD_LOGGING_DIR=/workspace/output/qwen3-4b-qlora-sft-full-v1/tensorboard \
   -v "${DATA_DIR}:/workspace/dataset:ro" \
   -v "${CONFIG_DIR}:/workspace/config:ro" \
   -v "${OUTPUT_DIR}:/workspace/output" \
