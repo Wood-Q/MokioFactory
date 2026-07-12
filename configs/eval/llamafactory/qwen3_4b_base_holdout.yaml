@@ -1,0 +1,29 @@
+### model
+model_name_or_path: Qwen/Qwen3-4B-Instruct-2507
+quantization_bit: 4
+quantization_method: bnb
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: false
+finetuning_type: full
+
+### dataset
+eval_dataset: mokio_holdout_all
+dataset_dir: /workspace/test_dataset
+template: qwen3_nothink
+cutoff_len: 2048
+overwrite_cache: true
+preprocessing_num_workers: 4
+dataloader_num_workers: 2
+
+### output
+output_dir: /workspace/output/eval/qwen3-4b-base-holdout
+overwrite_output_dir: true
+report_to: none
+
+### eval
+do_eval: true
+per_device_eval_batch_size: 1
+bf16: true

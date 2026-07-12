@@ -1,0 +1,22 @@
+test_version: agent-code-holdout-v1
+
+input:
+  bucket: mokio-lake
+  silver_shard_key: silver/schema=sft.v1/date=2026-07-09/part-000000.jsonl
+  silver_manifest_key: silver/schema=sft.v1/date=2026-07-09/manifest.json
+  audit_report_key: audit/schema=sft.v1/run_id=stage1-20260710-001/report.json
+  gold_manifest_key: gold/schema=sft.v1/mixture=agent-code-v1/run_id=stage1-20260710-001/manifest.json
+  schema_path: schemas/sft.schema.json
+
+selection:
+  seed: 20260712
+  sources:
+    salesforce-xlam-function-calling-60k: 200
+    salesforce-apigen-mt-5k: 200
+    openthoughts-agent-v1-sft: 100
+
+output:
+  local_dir: data/llamafactory/stage1_agent_code_holdout_v1
+  all_filename: test_all.jsonl
+  dataset_info_filename: dataset_info.json
+  manifest_filename: test_manifest.json
