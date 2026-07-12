@@ -7,7 +7,7 @@ trust_remote_code: true
 ### method
 stage: sft
 do_train: false
-finetuning_type: full
+finetuning_type: lora
 
 ### dataset
 eval_dataset: mokio_holdout_all
