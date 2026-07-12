@@ -1,0 +1,54 @@
+version: 1
+
+paths:
+  source_root: artifacts/benchmarks/src
+  env_root: artifacts/benchmarks/envs
+  output_root: outputs/benchmarks
+
+benchmarks:
+  bfcl:
+    repository: https://github.com/ShishirPatil/gorilla.git
+    revision: 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8
+    sparse_path: berkeley-function-call-leaderboard
+    package_path: berkeley-function-call-leaderboard
+    python: "3.11"
+    model_registry_name: Qwen/Qwen3-4B-Instruct-2507-FC
+    run_ids_file: configs/eval/benchmarks/bfcl_stage1_run_ids.json
+    categories:
+      - simple_python
+      - multiple
+      - parallel
+      - parallel_multiple
+      - irrelevance
+
+  evalplus:
+    repository: https://github.com/evalplus/evalplus.git
+    revision: 26d6d00bb1fd0fa37f39c99d5290da67891d1c5e
+    package_path: .
+    python: "3.11"
+    docker_image: mokio/evalplus:26d6d00
+    datasets:
+      humaneval:
+        id_range: [0, 20]
+      mbpp:
+        id_range: [0, 20]
+
+  tau3:
+    repository: https://github.com/sierra-research/tau2-bench.git
+    revision: 17e07b1da2bbc0cadfddeea36412686e0604127b
+    sparse_path:
+      - src
+      - data/tau2/domains/retail
+      - data/tau2/user_simulator
+      - examples
+    python: "3.12"
+    extras:
+      - voice
+      - knowledge
+    domain: retail
+    task_split_name: test
+    task_ids: ["5", "9", "12", "17", "18"]
+    num_trials: 1
+    max_steps: 80
+    max_concurrency: 1
+    seed: 20260712

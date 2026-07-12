@@ -82,3 +82,7 @@ python -m pipelines.eval.score_tool_calls \
 逐样本配对结果：144 条两者都正确，16 条 adapter 修正，7 条 adapter 回退，33 条两者都错误。当前 adapter 有净提升，但 200 条样本仍偏小；下一轮应扩大独立 tool-call benchmark，并重点补充默认参数、offset、单次/多次调用边界样本。
 
 xLAM 的部分 label 会显式填充用户没有提供的默认值或占位凭证。严格准确率适合检查是否复现数据集标注，但不等同于真实工具执行成功率；后续还需要增加 schema 校验和可执行 mock tool 测试。
+
+## 外部 Benchmark
+
+内部 holdout 跑通后，Stage 1 · Phase 3 接入 [BFCL、EvalPlus 与 τ³-bench](benchmarks/README.md) 小切片。三者分别覆盖标准工具调用、可执行代码正确性和有状态多轮 Agent 任务，统一比较 base/adapter，但继续使用各项目官方 evaluator。
